@@ -1,0 +1,191 @@
+<wxs module="utils">
+module.exports = {
+  inArray: function(arr, item) {
+    if (!arr || !item) return false
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] === item) return true
+    }
+    return false
+  }
+}
+</wxs>
+
+<view class="add-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-title">👶 儿童衣橱管家</view>
+    <view class="nav-subtitle">智能管理宝贝的每一件衣物</view>
+  </view>
+  
+  <view class="add-form">
+    <!-- 衣服照片 -->
+    <view class="form-section">
+      <view class="form-label">衣服照片</view>
+      <view class="upload-box" bindtap="chooseImage">
+        <image wx:if="{{formData.image}}" src="{{formData.image}}" mode="aspectFill" class="preview-img"/>
+        <view wx:else class="upload-placeholder">
+          <text class="upload-icon">📷</text>
+          <text class="upload-text">选择照片方式</text>
+          <text class="upload-hint">支持 JPG、PNG 格式</text>
+        </view>
+      </view>
+      <view class="photo-buttons">
+        <view class="photo-btn camera-btn" bindtap="takePhoto">
+          <text class="photo-btn-icon">📸</text>
+          <text class="photo-btn-text">拍照</text>
+        </view>
+        <view class="photo-btn album-btn" bindtap="chooseFromAlbum">
+          <text class="photo-btn-icon">🖼️</text>
+          <text class="photo-btn-text">相册</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 衣服名称 -->
+    <view class="form-section">
+      <view class="form-label">衣服名称</view>
+      <input 
+        class="form-input" 
+        placeholder="例如：红色连衣裙" 
+        value="{{formData.name}}"
+        bindinput="onInput"
+        data-field="name"
+      />
+    </view>
+    
+    <!-- 衣服类型 -->
+    <view class="form-section">
+      <view class="form-label">衣服类型</view>
+      <view class="category-grid">
+        <view 
+          wx:for="{{categoryOptions}}" 
+          wx:key="id"
+          class="category-item {{formData.category === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectCategory"
+        >
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 适合性别 -->
+    <view class="form-section">
+      <view class="form-label">适合性别</view>
+      <view class="gender-grid">
+        <view 
+          class="gender-item {{formData.gender === 'boy' ? 'active' : ''}}"
+          data-gender="boy"
+          bindtap="selectGender"
+        >
+          <text class="gender-icon">👦</text>
+          <text class="gender-name">男孩</text>
+        </view>
+        <view 
+          class="gender-item {{formData.gender === 'girl' ? 'active' : ''}}"
+          data-gender="girl"
+          bindtap="selectGender"
+        >
+          <text class="gender-icon">👧</text>
+          <text class="gender-name">女孩</text>
+        </view>
+        <view 
+          class="gender-item {{formData.gender === 'unisex' ? 'active' : ''}}"
+          data-gender="unisex"
+          bindtap="selectGender"
+        >
+          <text class="gender-icon {{formData.gender === 'unisex' ? 'active-icon' : ''}}">👫</text>
+          <text class="gender-name {{formData.gender === 'unisex' ? 'active-text' : ''}}">通用</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 适合季节 -->
+    <view class="form-section">
+      <view class="form-label">适合季节（可多选）</view>
+      <view class="season-tags">
+        <view 
+          wx:for="{{seasonOptions}}" 
+          wx:key="id"
+          class="season-tag {{utils.inArray(formData.season, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectSeason"
+        >
+          {{item.name}}{{utils.inArray(formData.season, item.id) ? '✓' : ''}}
+        </view>
+      </view>
+    </view>
+    
+    <!-- 尺码 -->
+    <view class="form-section">
+      <view class="form-label">尺码 ({{sizeUnit}})</view>
+      <view class="size-slider-container">
+        <slider 
+          class="size-slider"
+          min="0" 
+          max="{{currentSizeOptions.length - 1}}" 
+          value="{{selectedSizeIndex}}"
+          bindchange="onSizeChange"
+          show-value="{{false}}"
+          block-size="24"
+        />
+        <view class="size-labels">
+          <text class="size-min">{{currentSizeOptions[0]}}</text>
+          <text class="size-current">{{formData.size || '--'}}{{formData.size ? sizeUnit : ''}}</text>
+          <text class="size-max">{{currentSizeOptions[currentSizeOptions.length - 1]}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 颜色（保持不变） -->
+    <view class="form-section">
+      <view class="form-label">主色调</view>
+      <view class="color-picker-row">
+        <view 
+          wx:for="{{colorOptions}}" 
+          wx:key="id"
+          class="color-item {{formData.color === item.id ? 'active' : ''}}"
+          style="background: {{item.value}};"
+          data-id="{{item.id}}"
+          bindtap="selectColor"
+        >
+          <view wx:if="{{formData.color === item.id}}" class="color-check">✓</view>
+        </view>
+      </view>
+      <view wx:if="{{selectedColorHex}}" class="color-hex">#{{selectedColorHex}}</view>
+    </view>
+    
+    <!-- 标签 -->
+    <view class="form-section">
+      <view class="form-label">标签</view>
+      <view class="tag-list">
+        <view 
+          wx:for="{{tagOptions}}" 
+          wx:key="id"
+          class="tag-item {{utils.inArray(formData.tags, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="toggleTag"
+        >
+          {{item.name}}
+        </view>
+      </view>
+      <view class="custom-tag-row">
+        <input 
+          class="custom-tag-input" 
+          placeholder="自定义标签"
+          bindinput="onTagInput"
+          value="{{customTag}}"
+        />
+        <view class="custom-tag-btn" bindtap="addCustomTag">添加</view>
+      </view>
+    </view>
+    
+    <!-- 按钮 -->
+    <view class="form-actions">
+      <view class="btn-cancel" bindtap="onCancel">取消</view>
+      <view class="btn-primary submit-btn" bindtap="submitForm">保存</view>
+    </view>
+  </view>
+  
+  <tab-bar currentIndex="2" editMode="{{isEdit}}"></tab-bar>
+</view>

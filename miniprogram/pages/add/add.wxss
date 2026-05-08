@@ -1,0 +1,402 @@
+.add-page {
+  min-height: 100vh;
+  background: #F9FAFB;
+  padding-bottom: 140rpx;
+}
+
+.nav-bar {
+  height: 180rpx;
+  padding: 60rpx 32rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8rpx;
+}
+
+.nav-subtitle {
+  font-size: 28rpx;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #0A0A0A;
+  padding: 32rpx 32rpx 0;
+}
+
+.add-form {
+  padding: 32rpx;
+}
+
+.form-section {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #0A0A0A;
+  margin-bottom: 16rpx;
+}
+
+/* 上传区域 */
+.upload-box {
+  width: 100%;
+  height: 400rpx;
+  background: #F9FAFB;
+  border-radius: 28rpx;
+  border: 3.2rpx solid #D1D5DC;
+  overflow: hidden;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon {
+  font-size: 120rpx;
+  margin-bottom: 16rpx;
+}
+
+.upload-text {
+  font-size: 32rpx;
+  color: #6A7282;
+  margin-bottom: 8rpx;
+}
+
+.upload-hint {
+  font-size: 24rpx;
+  color: #99A1AF;
+}
+
+/* 拍照/相册按钮 */
+.photo-buttons {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.photo-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-btn-icon {
+  font-size: 32rpx;
+}
+
+.photo-btn-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+  margin-top: 4rpx;
+}
+
+.camera-btn {
+  background: #00A63E;
+}
+
+.album-btn {
+  background: #155DFC;
+}
+
+/* 输入框 */
+.form-input {
+  width: 100%;
+  height: 100rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  border: 1.6rpx solid #E5E7EB;
+  padding: 0 32rpx;
+  font-size: 32rpx;
+  color: #0A0A0A;
+  box-sizing: border-box;
+}
+
+.form-input::placeholder {
+  color: rgba(10, 10, 10, 0.5);
+}
+
+/* 分类网格 */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  border: 3.2rpx solid #E5E7EB;
+}
+
+.category-item.active {
+  background: #FAF5FF;
+  border-color: #C27AFF;
+}
+
+.category-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.category-name {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #0A0A0A;
+}
+
+/* 性别选择 */
+.gender-grid {
+  display: flex;
+  gap: 16rpx;
+}
+
+.gender-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  border: 3.2rpx solid #E5E7EB;
+}
+
+.gender-item.active {
+  background: #FAF5FF;
+  border-color: #C27AFF;
+}
+
+.gender-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.gender-icon.active-icon {
+  color: #9810FA;
+}
+
+.gender-name {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #4A5565;
+}
+
+.gender-name.active-text {
+  color: #9810FA;
+}
+
+/* 季节标签 */
+.season-tags {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.season-tag {
+  padding: 16rpx 28rpx;
+  background: #FFFFFF;
+  border-radius: 100rpx;
+  border: 3.2rpx solid #E5E7EB;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #4A5565;
+}
+
+.season-tag.active {
+  background: #FAF5FF;
+  border-color: #C27AFF;
+  color: #9810FA;
+}
+
+/* 尺码滑动条 */
+.size-slider-container {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 24rpx 32rpx;
+  border: 1.6rpx solid #E5E7EB;
+}
+
+.size-slider {
+  margin-bottom: 16rpx;
+}
+
+.size-slider .wx-slider-handle {
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%) !important;
+}
+
+.size-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.size-min, .size-max {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.size-current {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #C27AFF;
+}
+
+/* 颜色选择器（保持原有样式） */
+.color-picker-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16rpx;
+}
+
+.color-item {
+  height: 80rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid rgba(0, 0, 0, 0.1);
+}
+
+.color-item.active {
+  border-width: 3.2rpx;
+  border-color: #1F2937;
+}
+
+.color-check {
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: bold;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.3);
+}
+
+.color-hex {
+  font-size: 28rpx;
+  color: #4A5565;
+  margin-top: 16rpx;
+}
+
+/* 标签 */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-item {
+  padding: 12rpx 24rpx;
+  background: #F3F4F6;
+  border-radius: 100rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #4A5565;
+}
+
+.tag-item.active {
+  background: rgba(173, 70, 255, 0.1);
+  color: #AD46FF;
+}
+
+.custom-tag-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.custom-tag-input {
+  flex: 1;
+  height: 84rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  border: 1.6rpx solid #E5E7EB;
+  padding: 0 32rpx;
+  font-size: 32rpx;
+  color: #0A0A0A;
+  box-sizing: border-box;
+}
+
+.custom-tag-input::placeholder {
+  color: rgba(10, 10, 10, 0.5);
+}
+
+.custom-tag-btn {
+  width: 128rpx;
+  height: 84rpx;
+  background: #AD46FF;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* 按钮 */
+.form-actions {
+  margin-top: 48rpx;
+  margin-bottom: 32rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-cancel {
+  flex: 1;
+  height: 100rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  border: 1.6rpx solid #D1D5DC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #364153;
+}
+
+.submit-btn {
+  flex: 1;
+  height: 100rpx;
+  background: #00A63E;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* 覆盖全局 btn-primary 样式 */
+.form-actions .btn-primary {
+  padding: 0;
+  border-radius: 20rpx;
+}

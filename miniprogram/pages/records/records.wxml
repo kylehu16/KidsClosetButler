@@ -1,0 +1,101 @@
+<view class="records-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">穿搭记录</view>
+  </view>
+  
+  <scroll-view scroll-y class="content">
+    <!-- 月份选择器 -->
+    <view class="month-picker card">
+      <view class="month-arrow-btn" bindtap="prevMonth">
+        <text>‹</text>
+      </view>
+      <view class="month-center">
+        <view class="month-info">
+          <view class="month-text">{{currentYear}}年{{currentMonth}}月</view>
+        </view>
+      </view>
+      <view class="month-arrow-btn" bindtap="nextMonth">
+        <text>›</text>
+      </view>
+    </view>
+    
+    <!-- 筛选标签 -->
+    <view class="filter-tabs">
+      <view class="filter-tab {{!selectedChildId ? 'active' : ''}}" bindtap="selectAll">全部</view>
+      <view 
+        wx:for="{{children}}"
+        wx:key="id"
+        class="filter-tab {{selectedChildId === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectChild"
+      >{{item.name}}</view>
+    </view>
+    
+    <!-- 统计卡片 -->
+    <view class="stats-row">
+      <view class="stat-card">
+        <view class="stat-num">{{stats.days}}</view>
+        <view class="stat-label">记录天数</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-num">{{stats.wears}}</view>
+        <view class="stat-label">穿着次数</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-num">{{stats.avgPerDay}}</view>
+        <view class="stat-label">日均件数</view>
+      </view>
+    </view>
+    
+    <!-- 穿搭记录列表 -->
+    <view class="records-list">
+      <view 
+        wx:for="{{filteredRecords}}"
+        wx:key="date"
+        class="record-card"
+      >
+        <!-- 日期头部 -->
+        <view class="record-header">
+          <view class="date-info">
+            <view class="date-left">
+              <view class="date-day">{{item.day}}</view>
+              <view class="date-weekday">{{item.weekday}}</view>
+            </view>
+            <view class="date-full">{{item.dateStr}}</view>
+          </view>
+          <view class="weather-info">
+            <text class="weather-text">{{item.weather}}</text>
+            <text class="weather-sep">·</text>
+            <text class="weather-temp">{{item.temp}}°C</text>
+          </view>
+        </view>
+        
+        <!-- 穿搭内容 -->
+        <view class="record-content">
+          <view class="outfit-title">
+            <view class="outfit-dot {{item.childId ? 'green' : ''}}"></view>
+            <text class="outfit-name">{{item.childName}}的穿搭</text>
+          </view>
+          <view class="outfit-items">
+            <view 
+              wx:for="{{item.items}}"
+              wx:for-item="clothing"
+              wx:key="id"
+              class="outfit-item"
+            >
+              <view class="clothing-image">
+                <image wx:if="{{clothing.image}}" src="{{clothing.image}}" mode="aspectFill"/>
+                <view wx:else class="img-placeholder">{{clothing.name[0]}}</view>
+              </view>
+              <view class="clothing-name">{{clothing.name}}</view>
+              <view class="clothing-category">{{clothing.category}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  
+  <tab-bar currentIndex="4"></tab-bar>
+</view>

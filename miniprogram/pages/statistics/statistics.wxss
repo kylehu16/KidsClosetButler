@@ -1,0 +1,377 @@
+.statistics-page {
+  min-height: 100vh;
+  background: #F9FAFB;
+  padding-bottom: 140rpx;
+}
+
+/* 渐变头部 */
+.gradient-header {
+  height: 180rpx;
+  padding: 60rpx 32rpx 20rpx;
+  background: linear-gradient(90deg, #FB64B6 0%, #C27AFF 100%);
+  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.10), 0px 4px 6px -1px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.header-content {
+  width: 100%;
+}
+
+.header-icon {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8rpx;
+}
+
+.header-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.90);
+}
+
+/* 导航栏 */
+.nav-bar {
+  height: 0;
+  background: transparent;
+  border: none;
+}
+
+.nav-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #0A0A0A;
+  margin-left: 16rpx;
+}
+
+.overview-section {
+  padding: 0 32rpx;
+  margin-top: 24rpx;
+}
+
+.overview-card {
+  padding: 32rpx;
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.overview-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.overview-period {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.overview-stats {
+  display: flex;
+  align-items: center;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #6B7280;
+  margin-top: 8rpx;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: #E5E7EB;
+}
+
+.section {
+  padding: 32rpx;
+}
+
+.section-card {
+  padding: 32rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 24rpx;
+}
+
+.category-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.category-stat {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+}
+
+.cat-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.cat-info {
+  flex: 1;
+}
+
+.cat-name {
+  font-size: 26rpx;
+  color: #1F2937;
+}
+
+.cat-count {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  margin-top: 4rpx;
+}
+
+.cat-percent {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #FB64B6;
+}
+
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+}
+
+.rank-num {
+  width: 48rpx;
+  height: 48rpx;
+  background: #F3F4F6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #6B7280;
+  margin-right: 16rpx;
+}
+
+.rank-num.top {
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  color: #FFFFFF;
+}
+
+.cold-num {
+  background: #E0F2FE;
+  font-size: 28rpx;
+}
+
+.rank-img {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #F3F4F6;
+  margin-right: 16rpx;
+}
+
+.rank-img image {
+  width: 100%;
+  height: 100%;
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-name {
+  font-size: 26rpx;
+  color: #1F2937;
+  font-weight: 500;
+}
+
+.rank-meta {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  margin-top: 4rpx;
+}
+
+.rank-tip {
+  font-size: 22rpx;
+  color: #FB64B6;
+  padding: 8rpx 16rpx;
+  background: rgba(251, 100, 182, 0.1);
+  border-radius: 20rpx;
+}
+
+.ranking-item.cold .rank-tip {
+  color: #00A63E;
+  background: rgba(0, 166, 62, 0.1);
+}
+
+/* 穿搭组合统计 */
+.outfit-chart {
+  background: #F9FAFB;
+  border-radius: 20rpx;
+  padding: 160rpx 64rpx;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.chart-icon {
+  font-size: 72rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.chart-empty {
+  font-size: 32rpx;
+  color: #0A0A0A;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.chart-hint {
+  font-size: 28rpx;
+  color: #99A1AF;
+}
+
+.outfit-stats-row {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.outfit-stat-item {
+  flex: 1;
+  padding: 32rpx;
+  border-radius: 28rpx;
+}
+
+.outfit-stat-item.purple {
+  background: #FAF5FF;
+}
+
+.outfit-stat-item.pink {
+  background: #FDF2F8;
+}
+
+.outfit-stat-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.purple .outfit-stat-num {
+  color: #9810FA;
+}
+
+.pink .outfit-stat-num {
+  color: #E60076;
+}
+
+.outfit-stat-label {
+  font-size: 28rpx;
+  color: #4A5565;
+}
+
+.usage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-top: 1.6rpx solid #F3F4F6;
+}
+
+.usage-label {
+  font-size: 28rpx;
+  color: #4A5565;
+}
+
+.usage-value {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #0A0A0A;
+}
+
+/* 穿搭统计报告 */
+.report-card {
+  margin: 32rpx;
+  background: linear-gradient(135deg, #F3E8FF, #FCE7F3);
+  border-radius: 32rpx;
+  padding: 96rpx 64rpx;
+  text-align: center;
+  border: 3.2rpx solid #E9D4FF;
+}
+
+.report-icon {
+  font-size: 72rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.report-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #0A0A0A;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.report-text {
+  font-size: 28rpx;
+  color: #364153;
+}
+
+.report-link {
+  color: #9810FA;
+  font-weight: 700;
+}

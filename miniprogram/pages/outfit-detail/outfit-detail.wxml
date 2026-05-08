@@ -1,0 +1,42 @@
+<view class="detail-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">穿搭详情</view>
+  </view>
+
+  <view class="detail-content">
+    <view class="detail-header">
+      <text class="detail-name">{{outfit.name}}</text>
+      <text class="detail-date">{{outfit.date}}</text>
+    </view>
+
+    <view class="detail-meta" wx:if="{{outfit.childName}}">
+      <text class="detail-child">👤 {{outfit.childName}}</text>
+    </view>
+
+    <view class="detail-tags" wx:if="{{outfit.tags.length > 0}}">
+      <view wx:for="{{displayTags}}" wx:key="index" class="detail-tag">{{item}}</view>
+    </view>
+
+    <view class="detail-section">
+      <view class="detail-section-title">包含衣物</view>
+      <view class="detail-items">
+        <view wx:for="{{outfit.items}}" wx:key="id" class="detail-item">
+          <view class="detail-img">
+            <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+            <view wx:else class="img-placeholder">
+              <text>{{item.name ? item.name[0] : '?'}}</text>
+            </view>
+          </view>
+          <view class="detail-item-name">{{item.name || '未知'}}</view>
+          <view class="detail-item-type">{{item.type || item.categoryText || ''}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-actions">
+    <button class="edit-btn" bindtap="editOutfit">编辑这套穿搭</button>
+    <button class="delete-btn" bindtap="deleteOutfit">删除这套穿搭</button>
+  </view>
+</view>

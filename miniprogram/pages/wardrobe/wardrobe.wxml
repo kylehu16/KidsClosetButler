@@ -1,0 +1,71 @@
+<view class="wardrobe-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-title">👶 儿童衣橱管家</view>
+    <view class="nav-subtitle">智能管理宝贝的每一件衣物</view>
+  </view>
+  
+  <view class="category-tabs">
+    <view 
+      wx:for="{{categories}}" 
+      wx:key="id"
+      class="tab-item {{selectedCategory === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="selectCategory"
+    >
+      {{item.name}}
+    </view>
+  </view>
+  
+  <view class="stats-cards">
+    <view class="stat-card">
+      <view class="stat-num">{{totalCount}}</view>
+      <view class="stat-label">总件数</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-num">{{categoryCount}}</view>
+      <view class="stat-label">分类</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-num">{{weekCount}}</view>
+      <view class="stat-label">本周穿搭</view>
+    </view>
+  </view>
+  
+  <scroll-view class="clothes-list" scroll-y>
+    <view class="clothes-grid">
+      <view 
+        wx:for="{{filteredClothes}}" 
+        wx:key="id"
+        class="clothes-card card"
+      >
+        <view class="clothes-img" data-id="{{item.id}}" bindtap="goToDetail">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+          <view wx:else class="img-placeholder">
+            <text>{{item.name[0]}}</text>
+          </view>
+        </view>
+        <view class="clothes-info">
+          <view class="clothes-name">{{item.name}}</view>
+          <view class="clothes-meta">
+            <text class="tag tag-gray">{{item.size}}码</text>
+            <text class="tag tag-gray">{{item.categoryText}}</text>
+          </view>
+        </view>
+        <view class="clothes-actions">
+          <view class="action-btn edit-btn" data-id="{{item.id}}" bindtap="onEdit">
+            <text>✏️ 修改</text>
+          </view>
+          <view class="action-btn delete-btn" data-id="{{item.id}}" bindtap="onDelete">
+            <text>🗑️ 删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:if="{{filteredClothes.length === 0}}" class="empty-state">
+      <text class="empty-text">暂无衣物，点击下方+添加</text>
+    </view>
+  </scroll-view>
+  
+  <tab-bar currentIndex="0"></tab-bar>
+</view>

@@ -1,0 +1,35 @@
+{
+  "pages": [
+    "pages/wardrobe/wardrobe",
+    "pages/outfit/outfit",
+    "pages/outfit-detail/outfit-detail",
+    "pages/add/add",
+    "pages/statistics/statistics",
+    "pages/profile/profile",
+    "pages/records/records",
+    "pages/child-edit/child-edit"
+  ],
+  "window": {
+    "navigationBarTitleText": "儿童衣橱管家",
+    "navigationStyle": "custom",
+    "backgroundColor": "#F9FAFB"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#4A5565",
+    "selectedColor": "#00A63E",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/wardrobe/wardrobe", "text": "衣橱" },
+      { "pagePath": "pages/outfit/outfit", "text": "穿搭" },
+      { "pagePath": "pages/add/add", "text": "添加" },
+      { "pagePath": "pages/statistics/statistics", "text": "统计" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "usingComponents": {
+    "tab-bar": "/components/tab-bar/tab-bar"
+  },
+  "sitemapLocation": "sitemap.json"
+}

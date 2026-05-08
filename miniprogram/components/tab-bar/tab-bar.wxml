@@ -1,0 +1,28 @@
+<view class="tab-bar">
+  <view 
+    wx:for="{{tabList}}" 
+    wx:key="id" 
+    class="tab-item {{selected === index ? 'active' : ''}}"
+    data-index="{{index}}"
+    bindtap="switchTab"
+  >
+    <view class="tab-icon">
+      <image 
+        wx:if="{{selected === index}}"
+        src="/assets/icons/{{item.icon}}_active.png" 
+        mode="aspectFit"
+      />
+      <image 
+        wx:else
+        src="/assets/icons/{{item.icon}}.png" 
+        mode="aspectFit"
+      />
+    </view>
+    <text class="tab-text">{{item.text}}</text>
+    <view wx:if="{{index === 2}}" class="add-center">
+      <view class="add-btn">
+        <text>+</text>
+      </view>
+    </view>
+  </view>
+</view>

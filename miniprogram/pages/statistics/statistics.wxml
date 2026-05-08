@@ -1,0 +1,126 @@
+<view class="statistics-page">
+  <!-- 渐变头部 -->
+  <view class="gradient-header">
+    <view class="header-content">
+      <view class="header-icon">👶 儿童衣橱管家</view>
+      <view class="header-subtitle">智能管理宝贝的每一件衣物</view>
+    </view>
+  </view>
+  
+  <view class="overview-section">
+    <view class="overview-card card">
+      <view class="overview-header">
+        <text class="overview-title">衣橱总览</text>
+        <text class="overview-period">近30天</text>
+      </view>
+      <view class="overview-stats">
+        <view class="stat-item">
+          <view class="stat-num text-primary">{{totalCount}}</view>
+          <view class="stat-label">衣物总数</view>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-num text-success">{{wornCount}}</view>
+          <view class="stat-label">已穿次数</view>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-num text-ai">{{idleCount}}</view>
+          <view class="stat-label">闲置衣物</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">分类统计</view>
+    <view class="category-stats">
+      <view 
+        wx:for="{{categoryStats}}" 
+        wx:key="id"
+        class="category-stat card"
+      >
+        <view class="cat-icon">{{item.icon}}</view>
+        <view class="cat-info">
+          <view class="cat-name">{{item.name}}</view>
+          <view class="cat-count">{{item.count}}件</view>
+        </view>
+        <view class="cat-percent">{{item.percent}}%</view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">热门穿搭 TOP5</view>
+    <view class="ranking-list">
+      <view 
+        wx:for="{{hotList}}" 
+        wx:key="id"
+        class="ranking-item card"
+      >
+        <view class="rank-num {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+        <view class="rank-img">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+          <view wx:else class="img-placeholder">{{item.name[0]}}</view>
+        </view>
+        <view class="rank-info">
+          <view class="rank-name">{{item.name}}</view>
+          <view class="rank-meta">穿过{{item.wearCount}}次</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">沉睡榜单</view>
+    <view class="ranking-list">
+      <view 
+        wx:for="{{coldList}}" 
+        wx:key="id"
+        class="ranking-item card cold"
+      >
+        <view class="rank-num cold-num">🥶</view>
+        <view class="rank-img">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+          <view wx:else class="img-placeholder">{{item.name[0]}}</view>
+        </view>
+        <view class="rank-info">
+          <view class="rank-name">{{item.name}}</view>
+          <view class="rank-meta">已{{item.days}}天未穿</view>
+        </view>
+        <view class="rank-tip">建议搭配</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 穿搭组合统计 -->
+  <view class="section-card">
+    <view class="section-header">
+      <view class="section-icon green">
+        <image src="/assets/icons/stats.svg" mode="aspectFit"/>
+      </view>
+      <text class="section-title">穿搭组合统计</text>
+      <text class="section-subtitle">（各类别使用次数）</text>
+    </view>
+    <view class="outfit-chart">
+      <text class="chart-icon">📊</text>
+      <text class="chart-empty">暂无穿搭数据</text>
+      <text class="chart-hint">保存穿搭组合后将显示统计图表</text>
+    </view>
+    <view class="outfit-stats-row">
+      <view class="outfit-stat-item purple">
+        <text class="outfit-stat-num">{{totalOutfits}}</text>
+        <text class="outfit-stat-label">保存的穿搭组合</text>
+      </view>
+      <view class="outfit-stat-item pink">
+        <text class="outfit-stat-num">{{topOutfitCount || '-'}}</text>
+        <text class="outfit-stat-label">用得最多的</text>
+      </view>
+    </view>
+
+  </view>
+  
+
+  
+  <tab-bar currentIndex="3"></tab-bar>
+</view>

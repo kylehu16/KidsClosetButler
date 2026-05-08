@@ -1,0 +1,66 @@
+<view class="child-edit-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">{{isEdit ? '编辑宝贝' : '添加宝贝'}}</view>
+  </view>
+
+  <view class="form-content">
+    <view class="form-card card">
+      <view class="form-item">
+        <view class="form-label">姓名</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入宝贝姓名"
+          value="{{childForm.name}}"
+          bindinput="onInput"
+          data-field="name"
+        />
+      </view>
+      
+      <view class="form-row">
+        <view class="form-item">
+          <view class="form-label">年龄</view>
+          <input 
+            class="form-input" 
+            type="number"
+            placeholder="岁"
+            value="{{childForm.age}}"
+            bindinput="onInput"
+            data-field="age"
+          />
+        </view>
+        <view class="form-item">
+          <view class="form-label">身高 (cm)</view>
+          <input 
+            class="form-input" 
+            type="number"
+            placeholder="请输入身高"
+            value="{{childForm.height}}"
+            bindinput="onInput"
+            data-field="height"
+          />
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">性别</view>
+        <view class="gender-options">
+          <view 
+            class="gender-item {{childForm.gender === 'boy' ? 'active' : ''}}"
+            data-gender="boy"
+            bindtap="selectGender"
+          >👦 男宝</view>
+          <view 
+            class="gender-item {{childForm.gender === 'girl' ? 'active' : ''}}"
+            data-gender="girl"
+            bindtap="selectGender"
+          >👧 女宝</view>
+        </view>
+      </view>
+    </view>
+    
+    <button class="save-btn" bindtap="saveChild">保存</button>
+    
+    <button wx:if="{{isEdit}}" class="delete-btn" bindtap="deleteChild">删除宝贝</button>
+  </view>
+</view>
