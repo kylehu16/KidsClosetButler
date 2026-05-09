@@ -2,6 +2,7 @@
 .codebuddy/
 CODEBUDDY.md
 assets/
+.agents/
 
 # 依赖目录
 node_modules/
@@ -30,3 +31,4 @@ build/
 # 临时文件
 *.tmp
 .cache/
+skills-lock.json
