@@ -21,10 +21,10 @@ const wmoToWeather = {
   66: '雨夹雪', // Light freezing rain
   67: '雨夹雪', // Heavy freezing rain
   71: '小雪',   // Slight snow fall
-  73: '中雪',   // Moderate snow fall
-  75: // 大雪
-  77: // 雪粒
-  80: '小雨',   // Slight rain showers
+ 73: '中雪',   // Moderate snow fall
+ 75: '大雪',   // Heavy snow fall
+ 77: '雪粒',   // Snow grains
+ 80: '小雨',   // Slight rain showers
   81: '中雨',   // Moderate rain showers
   82: '大雨',   // Violent rain showers
   85: '小雪',   // Slight snow showers
@@ -106,7 +106,6 @@ exports.main = async (event, context) => {
       // 获取未来3天（今天+后两天）
       const days = Math.min(3, weatherData.daily.time.length)
       for (let i = 0; i < days; i++) {
-        const date = new Date(weatherData.daily.time[i])
         const weatherCode = weatherData.daily.weathercode ? weatherData.daily.weathercode[i] : wmoCode
         dailyForecast.push({
           date: weatherData.daily.time[i],
