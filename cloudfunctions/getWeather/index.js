@@ -67,7 +67,30 @@ const wmoToWeatherId = {
 }
 
 exports.main = async (event, context) => {
-  const { latitude, longitude } = event
+  let { latitude, longitude, city } = event
+
+  // 如果传入了城市名称，先通过地理编码获取经纬度
+  if (city && !latitude && !longitude) {
+    try {
+      const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh&format=json`
+      const geoData = await httpGet(geoUrl)
+      
+      if (geoData.results && geoData.results.length > 0) {
+        latitude = geoData.results[0].latitude
+        longitude = geoData.results[0].longitude
+      } else {
+        return {
+          code: -1,
+          message: '未找到该城市的位置信息'
+        }
+      }
+    } catch (error) {
+      return {
+        code: -1,
+        message: '地理编码失败：' + error.message
+      }
+    }
+  }
 
   if (!latitude || !longitude) {
     return {

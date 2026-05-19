@@ -554,15 +554,13 @@ Page({
     })
   },
 
-  // 获取当前位置（封装成Promise）
-  getLocation() {
+  // 获取当前模糊位置（封装成Promise）
+  getFuzzyLocation() {
     return new Promise((resolve, reject) => {
-      wx.getLocation({
-        type: 'gcj02',
+      wx.getFuzzyLocation({
         success: (res) => {
           resolve({
-            latitude: res.latitude,
-            longitude: res.longitude
+            city: res.city
           })
         },
         fail: (err) => {
@@ -585,10 +583,10 @@ Page({
     // 先检查授权状态
     wx.getSetting({
       success(res) {
-        if (!res.authSetting['scope.userLocation']) {
+        if (!res.authSetting['scope.userFuzzyLocation']) {
           // 未授权，先请求授权
           wx.authorize({
-            scope: 'scope.userLocation',
+            scope: 'scope.userFuzzyLocation',
             success() {
               // 授权成功，获取位置
               that.getLocationAndWeather()
@@ -620,20 +618,18 @@ Page({
     })
   },
 
-  // 获取位置并调用天气API
+  // 获取模糊位置并调用天气API
   getLocationAndWeather() {
     const that = this
     
-    wx.getLocation({
-      type: 'gcj02',
+    wx.getFuzzyLocation({
       success: (locationRes) => {
-        const { latitude, longitude } = locationRes
+        const { city } = locationRes
         
         wx.cloud.callFunction({
           name: 'getWeather',
           data: {
-            latitude,
-            longitude
+            city
           },
           success: (weatherRes) => {
             that.setData({ locationLoading: false })
