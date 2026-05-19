@@ -22,16 +22,16 @@ module.exports = {
       <view class="mode-tab {{modeTab === 0 ? 'active' : ''}}" data-mode="0" bindtap="switchMode">
         <text>AI推荐</text>
       </view>
-      <view class="mode-tab {{modeTab === 1 ? 'active' : ''}}" data-mode="1" bindtap="switchMode">
-        <text>自选搭配</text>
-      </view>
       <view class="mode-tab {{modeTab === 2 ? 'active' : ''}}" data-mode="2" bindtap="switchMode">
         <text>已保存</text>
       </view>
+      <view class="mode-tab {{modeTab === 3 ? 'active' : ''}}" data-mode="3" bindtap="switchMode">
+        <text>穿搭记录</text>
+      </view>
     </view>
 
-    <!-- AI推荐和自选搭配模式 -->
-    <view wx:if="{{modeTab === 0 || modeTab === 1}}">
+    <!-- AI推荐模式 -->
+    <view wx:if="{{modeTab === 0}}">
       <!-- 选择儿童 -->
       <view class="section">
         <view class="section-label">选择儿童</view>
@@ -46,18 +46,25 @@ module.exports = {
             <view class="child-avatar">{{item.avatar}}</view>
             <view class="child-info">
               <view class="child-name">{{item.name}}</view>
-              <view class="child-desc">{{item.age}}岁 · {{item.height}}cm</view>
+              <view class="child-desc">
+                <text wx:if="{{item.age}}">{{item.age}}岁</text>
+                <text wx:if="{{item.heightText}}"> · 身高{{item.heightText}}</text>
+                <text wx:if="{{item.footLengthText}}"> · 脚长{{item.footLengthText}}</text>
+              </view>
             </view>
           </view>
         </view>
       </view>
-    </view>
 
-    <!-- AI推荐模式专属 -->
-    <view wx:if="{{modeTab === 0}}">
       <!-- 选择天气 -->
       <view class="section">
-        <view class="section-label">选择天气</view>
+        <view class="section-label-row">
+          <view class="section-label">选择天气</view>
+          <view class="get-weather-btn" bindtap="getCurrentWeather">
+            <text wx:if="{{locationLoading}}">获取中...</text>
+            <text wx:else>📍 获取当前天气</text>
+          </view>
+        </view>
         <view class="weather-grid">
           <view 
             wx:for="{{weatherList}}" 
@@ -109,7 +116,7 @@ module.exports = {
       <view class="outfit-recommend card">
         <view class="recommend-header">
           <text class="recommend-title">今日推荐穿搭</text>
-          <view class="more-icon"></view>
+          <view class="more-icon" bindtap="regenerate"></view>
         </view>
         <view class="recommend-items">
           <view 
@@ -130,7 +137,7 @@ module.exports = {
           <text>💡 为 <text class="tip-highlight">{{selectedChildName}}</text> 推荐的穿搭</text>
           <text class="tip-desc">适合{{selectedWeatherName}}天气，温度{{selectedTempName}}，{{selectedOccasionName}}场合穿着</text>
         </view>
-        <view class="save-outfit-btn">
+        <view class="save-outfit-btn" bindtap="saveOutfit">
           <text>保存这套搭配</text>
         </view>
       </view>
@@ -155,7 +162,7 @@ module.exports = {
               </view>
               <view class="week-weather-temp">
                 <text>{{item.weatherIcon}} {{item.weather}}</text>
-                <text class="temp">{{item.temp}}°C</text>
+                <text class="temp">{{item.tempRange}}</text>
               </view>
             </view>
             <view class="week-suggest">{{item.suggest}}</view>
@@ -164,121 +171,45 @@ module.exports = {
       </view>
     </view>
 
-    <!-- 自选搭配模式专属 -->
-    <view wx:if="{{modeTab === 1}}">
-      <!-- 编辑模式提示 -->
-      <view wx:if="{{isEditMode}}" class="edit-mode-tip">
-        <text>编辑穿搭</text>
-        <text class="edit-cancel" bindtap="cancelEdit">取消编辑</text>
-      </view>
-      
-      <!-- 搭配名称 -->
-      <view class="section">
-        <view class="section-label">搭配名称（可选）</view>
-        <view class="outfit-name-input">
-          <input 
-            class="name-input" 
-            placeholder="例如：春游搭配"
-            placeholder-class="input-placeholder"
-            bindinput="onOutfitNameInput"
-            value="{{outfitName}}"
-          />
-        </view>
-      </view>
-
-      <!-- 标签选择 -->
-      <view class="section">
-        <view class="section-label">标签</view>
-        <!-- 全部标签（预设+自定义） -->
-        <view class="tag-list">
-          <!-- 预设标签 -->
-          <view 
-            wx:for="{{tagOptions}}" 
-            wx:key="id"
-            class="tag-item {{utils.inArray(selectedTags, item.id) ? 'active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="toggleTag"
-          >
-            {{item.name}}
-          </view>
-          <!-- 自定义标签 -->
-          <view 
-            wx:for="{{customTags}}" 
-            wx:key="index"
-            class="tag-item {{utils.inArray(selectedTags, item.id) ? 'active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="toggleCustomTag"
-          >
-            {{item.name}}
-          </view>
-        </view>
-        <!-- 自定义标签输入 -->
-        <view class="custom-tag-row">
-          <input 
-            class="custom-tag-input" 
-            placeholder="添加自定义标签"
-            bindinput="onTagInput"
-            value="{{customTag}}"
-          />
-          <view class="custom-tag-btn" bindtap="addCustomTag">添加</view>
-        </view>
-      </view>
-
-      <!-- 选择衣物 -->
-      <view class="section">
-        <view class="section-label">选择衣物（已选 {{selectedClothes.length}} 件）</view>
-        <view class="clothes-grid">
-          <view 
-            wx:for="{{clothesList}}" 
-            wx:key="id"
-            class="clothes-item {{selectedClothes.includes(item.id) ? 'active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="toggleClothes"
-          >
-            <view class="clothes-img">
-              <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
-              <view wx:else class="img-placeholder">
-                <text>{{item.name[0]}}</text>
-              </view>
-            </view>
-            <view class="clothes-name">{{item.name}}</view>
-            <view class="clothes-type">{{item.type}}</view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 保存按钮 -->
-      <view class="section save-section">
-        <button 
-          class="save-btn {{selectedClothes.length > 0 ? '' : 'disabled'}}"
-          bindtap="saveCustomOutfit"
-          disabled="{{selectedClothes.length === 0}}"
-        >
-          保存这套搭配
-        </button>
-      </view>
-    </view>
-
     <!-- 已保存模式内容 -->
     <view wx:if="{{modeTab === 2}}">
+      <!-- 添加搭配按钮 -->
+      <view class="add-outfit-btn" bindtap="goToAddOutfit">
+        <text class="add-icon">+</text>
+        <text class="add-text">添加搭配</text>
+      </view>
+
+      <!-- 儿童筛选标签 -->
+      <view class="filter-tabs">
+        <view 
+          class="filter-tab {{selectedSavedChildId === '' ? 'active' : ''}}"
+          data-id=""
+          bindtap="selectSavedChild"
+        >全部</view>
+        <view 
+          wx:for="{{children}}"
+          wx:key="id"
+          class="filter-tab {{selectedSavedChildId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectSavedChild"
+        >{{item.name}}</view>
+      </view>
+
       <!-- 已保存的穿搭列表 -->
       <view class="saved-list">
         <view 
-          wx:for="{{savedOutfits}}" 
+          wx:for="{{filteredSavedOutfits}}" 
           wx:key="id" 
           class="saved-item card"
+          bindtap="viewSavedOutfit"
           data-id="{{item.id}}"
-          bindtap="viewOutfit"
         >
           <view class="saved-header">
             <text class="saved-name">{{item.name}}</text>
-            <text class="saved-date">{{item.date}}</text>
-          </view>
-          <view class="saved-meta" wx:if="{{item.childName || item.tags.length > 0}}">
             <text class="saved-child" wx:if="{{item.childName}}">👤 {{item.childName}}</text>
-            <view class="saved-tags" wx:if="{{item.tags.length > 0}}">
-              <text wx:for="{{item.tags}}" wx:key="index" class="saved-tag">{{item}}</text>
-            </view>
+          </view>
+          <view class="saved-tags" wx:if="{{item.tagNames.length > 0}}">
+            <text wx:for="{{item.tagNames}}" wx:key="index" class="saved-tag">{{item}}</text>
           </view>
           <view class="saved-items">
             <view wx:for="{{item.items}}" wx:for-item="clothes" wx:key="id" class="saved-clothes">
@@ -288,12 +219,158 @@ module.exports = {
                   <text>{{clothes.name[0]}}</text>
                 </view>
               </view>
+              <view class="saved-clothes-name">{{clothes.name}}</view>
+              <view class="saved-clothes-size" wx:if="{{clothes.size}}">{{clothes.size}}{{clothes.sizeUnit || 'cm'}}</view>
+            </view>
+          </view>
+          <view class="saved-actions">
+            <view class="wear-btn" catchtap="showWearModal" data-id="{{item.id}}">穿这套</view>
+          </view>
+        </view>
+        <view wx:if="{{filteredSavedOutfits.length === 0}}" class="empty-state">
+          <text>还没有保存的穿搭</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 穿搭记录模式内容 -->
+    <view wx:if="{{modeTab === 3}}">
+      <!-- 月份选择器 -->
+      <view class="month-picker card">
+        <view class="month-arrow-btn" bindtap="prevMonth">
+          <text>‹</text>
+        </view>
+        <view class="month-center">
+          <view class="month-info">
+            <view class="month-text">{{currentYear}}年{{currentMonth}}月</view>
+          </view>
+        </view>
+        <view class="month-arrow-btn" bindtap="nextMonth">
+          <text>›</text>
+        </view>
+      </view>
+      
+      <!-- 筛选标签 -->
+      <view class="filter-tabs">
+        <view class="filter-tab {{!selectedChildId ? 'active' : ''}}" bindtap="selectAll">全部</view>
+        <view 
+          wx:for="{{children}}"
+          wx:key="_id"
+          class="filter-tab {{selectedChildId === item._id ? 'active' : ''}}"
+          data-id="{{item._id}}"
+          bindtap="selectRecordChild"
+        >{{item.name}}</view>
+      </view>
+      
+      <!-- 统计卡片 -->
+      <view class="stats-row">
+        <view class="stat-card">
+          <view class="stat-num">{{stats.days}}</view>
+          <view class="stat-label">记录天数</view>
+        </view>
+        <view class="stat-card">
+          <view class="stat-num">{{stats.wears}}</view>
+          <view class="stat-label">穿着次数</view>
+        </view>
+        <view class="stat-card">
+          <view class="stat-num">{{stats.avgPerDay}}</view>
+          <view class="stat-label">日均件数</view>
+        </view>
+      </view>
+      
+      <!-- 穿搭记录列表 -->
+      <view class="records-list">
+        <view 
+          wx:for="{{filteredRecords}}"
+          wx:key="date"
+          class="record-card"
+          bindtap="viewRecord"
+          data-id="{{item._id}}"
+          data-outfit-id="{{item.outfitId}}"
+        >
+          <!-- 日期头部 -->
+          <view class="record-header">
+            <view class="date-info">
+              <view class="date-left">
+                <view class="date-day">{{item.day}}</view>
+                <view class="date-weekday">{{item.weekday}}</view>
+              </view>
+              <view class="date-full">{{item.dateStr}}</view>
+            </view>
+            <view class="delete-btn" catchtap="deleteRecord" data-id="{{item._id}}">删除</view>
+          </view>
+          
+          <!-- 穿搭内容 -->
+          <view class="record-content">
+            <view class="outfit-title">
+              <view class="outfit-dot {{item.childId ? 'green' : ''}}"></view>
+              <text class="outfit-name">{{item.outfitName}}</text>
+              <text class="outfit-child"> · {{item.childName}}</text>
+            </view>
+            <!-- 显示标签 -->
+            <view class="outfit-tags" wx:if="{{item.tagNames.length > 0}}">
+              <text wx:for="{{item.tagNames}}" wx:key="index" class="outfit-tag">{{item}}</text>
+            </view>
+            <view class="outfit-items">
+              <view 
+                wx:for="{{item.items}}"
+                wx:for-item="clothing"
+                wx:key="_id"
+                class="outfit-item"
+              >
+                <view class="clothing-image">
+                  <image wx:if="{{clothing.image}}" src="{{clothing.image}}" mode="aspectFill"/>
+                  <view wx:else class="img-placeholder">{{clothing.name[0]}}</view>
+                </view>
+                <view class="clothing-name">{{clothing.name}}</view>
+              </view>
             </view>
           </view>
         </view>
-        <view wx:if="{{savedOutfits.length === 0}}" class="empty-state">
-          <text>还没有保存的穿搭</text>
+        <view wx:if="{{filteredRecords.length === 0}}" class="empty-state">
+          <text>本月暂无穿搭记录</text>
         </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 穿搭记录弹窗 -->
+  <view class="wear-modal {{showWearModal ? 'show' : ''}}" bindtap="hideWearModal">
+    <view class="wear-modal-content" catchtap="stopPropagation">
+      <view class="wear-modal-title">记录穿搭</view>
+      
+      <!-- 选择儿童 -->
+      <view class="wear-modal-section">
+        <view class="wear-modal-label">选择儿童</view>
+        <view class="wear-child-list">
+          <view 
+            wx:for="{{children}}"
+            wx:key="id"
+            class="wear-child-item {{wearSelectedChildId === item.id ? 'active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectWearChild"
+          >
+            <view class="wear-child-avatar">{{item.avatar}}</view>
+            <view class="wear-child-name">{{item.name}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 选择日期 -->
+      <view class="wear-modal-section">
+        <view class="wear-modal-label">选择日期</view>
+        <picker mode="date" value="{{wearDate}}" bindchange="onWearDateChange">
+          <view class="wear-date-picker">
+            <text>{{wearDate || '请选择日期'}}</text>
+            <text class="wear-date-arrow">▸</text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 按钮 -->
+      <view class="wear-modal-btns">
+        <view class="wear-btn-cancel" bindtap="hideWearModal">取消</view>
+        <view class="wear-btn-confirm" bindtap="confirmWear">确定</view>
       </view>
     </view>
   </view>

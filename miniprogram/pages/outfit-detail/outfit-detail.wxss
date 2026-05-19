@@ -5,10 +5,12 @@
 
 .nav-bar {
   height: 180rpx;
-  padding: 60rpx 32rpx 20rpx;
+  padding: 0 32rpx;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding-bottom: 20rpx;
+  position: relative;
 }
 
 .nav-back {
@@ -57,6 +59,13 @@
   margin-bottom: 16rpx;
 }
 
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 32rpx;
+}
+
 .detail-child {
   font-size: 28rpx;
   color: #4A5565;
@@ -69,7 +78,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-bottom: 32rpx;
 }
 
 .detail-tag {
@@ -108,7 +116,7 @@
 
 .detail-img {
   width: 100%;
-  height: 200rpx;
+  height: 280rpx;
   background: #F3F4F6;
 }
 
@@ -138,10 +146,26 @@
 }
 
 .detail-item-type {
-  padding: 0 12rpx 12rpx;
+  padding: 0 12rpx 4rpx;
   font-size: 22rpx;
   color: #6A7282;
   text-align: center;
+}
+
+.detail-item-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12rpx;
+  padding: 0 12rpx 12rpx;
+}
+
+.detail-item-size {
+  font-size: 22rpx;
+  color: #AD46FF;
+  background: rgba(173, 70, 255, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
 }
 
 .detail-actions {
@@ -171,4 +195,148 @@
   padding: 24rpx 0;
   border-radius: 24rpx;
   border: none;
+}
+
+/* 穿这套弹窗样式 */
+.wear-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 24rpx 0;
+  border-radius: 24rpx;
+  border: none;
+  margin-bottom: 24rpx;
+}
+
+.wear-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.wear-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wear-modal-content {
+  width: 600rpx;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 48rpx 40rpx;
+}
+
+.wear-modal-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #0A0A0A;
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.wear-modal-section {
+  margin-bottom: 32rpx;
+}
+
+.wear-modal-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #364153;
+  margin-bottom: 16rpx;
+}
+
+.wear-child-list {
+  display: flex;
+  gap: 20rpx;
+  flex-wrap: wrap;
+}
+
+.wear-child-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120rpx;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid #E5E7EB;
+  transition: all 0.3s;
+}
+
+.wear-child-item.active {
+  border-color: #AD46FF;
+  background: rgba(173, 70, 255, 0.05);
+}
+
+.wear-child-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.wear-child-name {
+  font-size: 24rpx;
+  color: #364153;
+  text-align: center;
+}
+
+.wear-date-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  background: #F9FAFB;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #0A0A0A;
+}
+
+.wear-date-arrow {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.wear-modal-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+}
+
+.wear-btn-cancel {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  color: #6A7282;
+  background: #F3F4F6;
+  border-radius: 16rpx;
+}
+
+.wear-btn-confirm {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 16rpx;
 }

@@ -1,0 +1,9 @@
+{
+  "name": "getStatistics",
+  "version": "1.0.0",
+  "description": "获取统计数据（衣橱总览、分类统计、热门穿搭、沉睡榜单、本周趋势）",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

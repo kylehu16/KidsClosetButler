@@ -12,14 +12,14 @@ module.exports = {
 
 <view class="add-page">
   <view class="nav-bar gradient-bg">
-    <view class="nav-title">👶 儿童衣橱管家</view>
-    <view class="nav-subtitle">智能管理宝贝的每一件衣物</view>
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">{{isEdit ? '编辑衣物' : '添加衣物'}}</view>
   </view>
   
   <view class="add-form">
-    <!-- 衣服照片 -->
+    <!-- 衣物照片 -->
     <view class="form-section">
-      <view class="form-label">衣服照片</view>
+      <view class="form-label required">衣物照片</view>
       <view class="upload-box" bindtap="chooseImage">
         <image wx:if="{{formData.image}}" src="{{formData.image}}" mode="aspectFill" class="preview-img"/>
         <view wx:else class="upload-placeholder">
@@ -40,9 +40,9 @@ module.exports = {
       </view>
     </view>
     
-    <!-- 衣服名称 -->
+    <!-- 衣物名称 -->
     <view class="form-section">
-      <view class="form-label">衣服名称</view>
+      <view class="form-label required">衣物名称</view>
       <input 
         class="form-input" 
         placeholder="例如：红色连衣裙" 
@@ -52,9 +52,9 @@ module.exports = {
       />
     </view>
     
-    <!-- 衣服类型 -->
+    <!-- 衣物类型 -->
     <view class="form-section">
-      <view class="form-label">衣服类型</view>
+      <view class="form-label required">衣物类型</view>
       <view class="category-grid">
         <view 
           wx:for="{{categoryOptions}}" 
@@ -71,7 +71,7 @@ module.exports = {
     
     <!-- 适合性别 -->
     <view class="form-section">
-      <view class="form-label">适合性别</view>
+      <view class="form-label required">适合性别</view>
       <view class="gender-grid">
         <view 
           class="gender-item {{formData.gender === 'boy' ? 'active' : ''}}"
@@ -102,7 +102,7 @@ module.exports = {
     
     <!-- 适合季节 -->
     <view class="form-section">
-      <view class="form-label">适合季节（可多选）</view>
+      <view class="form-label required">适合季节（必选，可多选）</view>
       <view class="season-tags">
         <view 
           wx:for="{{seasonOptions}}" 
@@ -118,7 +118,7 @@ module.exports = {
     
     <!-- 尺码 -->
     <view class="form-section">
-      <view class="form-label">尺码 ({{sizeUnit}})</view>
+      <view class="form-label required">尺码 ({{sizeUnit}})</view>
       <view class="size-slider-container">
         <slider 
           class="size-slider"
@@ -160,10 +160,10 @@ module.exports = {
       <view class="form-label">标签</view>
       <view class="tag-list">
         <view 
-          wx:for="{{tagOptions}}" 
-          wx:key="id"
-          class="tag-item {{utils.inArray(formData.tags, item.id) ? 'active' : ''}}"
-          data-id="{{item.id}}"
+          wx:for="{{allTags}}" 
+          wx:key="matchId"
+          class="tag-item {{utils.inArray(formData.tags, item.matchId) ? 'active' : ''}}"
+          data-id="{{item.matchId}}"
           bindtap="toggleTag"
         >
           {{item.name}}
@@ -186,6 +186,4 @@ module.exports = {
       <view class="btn-primary submit-btn" bindtap="submitForm">保存</view>
     </view>
   </view>
-  
-  <tab-bar currentIndex="2" editMode="{{isEdit}}"></tab-bar>
 </view>

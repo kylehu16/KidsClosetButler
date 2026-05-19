@@ -1,0 +1,9 @@
+{
+  "name": "manageOutfits",
+  "version": "1.0.0",
+  "description": "穿搭管理（增删改查、推荐）",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

@@ -5,7 +5,7 @@
 ## 项目结构
 
 ```
-miniprogram/
+miniprogram/                          # 小程序前端
 ├── app.js, app.json, app.wxss       # 小程序入口
 ├── project.config.json               # 项目配置
 ├── sitemap.json                      # SEO配置
@@ -19,7 +19,32 @@ miniprogram/
 │   └── profile/                     # 个人中心页面
 └── assets/                           # 资源
     └── icons/                        # 图标
+
+cloudfunctions/                       # 云函数后端
+├── getPresetData/                    # 获取预设数据
+├── getStatistics/                    # 获取统计数据
+├── getWeather/                      # 获取天气信息
+├── manageChildren/                   # 管理宝贝信息
+├── manageClothes/                   # 管理衣物数据
+├── manageOutfits/                   # 管理穿搭记录
+├── manageTags/                      # 管理标签
+└── recordWearLog/                   # 记录穿衣日志
 ```
+
+## 云函数
+
+本项目使用以下云函数（部署到 CloudBase）：
+
+| 函数名 | 功能描述 |
+|--------|----------|
+| getPresetData | 获取预设数据 |
+| getStatistics | 获取统计数据 |
+| getWeather | 获取天气信息 |
+| manageChildren | 管理宝贝信息 |
+| manageClothes | 管理衣物数据 |
+| manageOutfits | 管理穿搭记录 |
+| manageTags | 管理标签 |
+| recordWearLog | 记录穿衣日志 |
 
 ## 功能特性
 

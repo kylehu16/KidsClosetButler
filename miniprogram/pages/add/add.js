@@ -1,8 +1,11 @@
+const cloud = require('../../utils/cloud')
+
 Page({
   data: {
     isEdit: false,
     editId: '',
-    customTag: '',
+    oldImageId: '',      // 编辑前的旧图片ID，用于删除
+    uploadedImageId: '', // 新增时上传的图片ID，提交成功前取消需删除
     formData: {
       name: '',
       category: '',
@@ -24,11 +27,10 @@ Page({
       { id: 'shoes', name: '鞋子', icon: '👟' }
     ],
     seasonOptions: [
-      { id: 'all', name: '四季' },
-      { id: 'spring', name: '春季' },
-      { id: 'summer', name: '夏季' },
-      { id: 'autumn', name: '秋季' },
-      { id: 'winter', name: '冬季' }
+      { id: 'spring', name: '春' },
+      { id: 'summer', name: '夏' },
+      { id: 'autumn', name: '秋' },
+      { id: 'winter', name: '冬' }
     ],
     colorOptions: [
       { id: 'red', value: '#EF4444', hex: 'EF4444' },
@@ -42,15 +44,7 @@ Page({
       { id: 'white', value: '#F9FAFB', hex: 'F9FAFB' },
       { id: 'gray', value: '#9CA3AF', hex: '9CA3AF' }
     ],
-    tagOptions: [
-      { id: 'casual', name: '休闲' },
-      { id: 'formal', name: '正式' },
-      { id: 'sports', name: '运动' },
-      { id: 'daily', name: '日常' },
-      { id: 'party', name: '聚会' },
-      { id: 'basic', name: '基础款' },
-      { id: 'versatile', name: '百搭' }
-    ],
+    allTags: [],       // 所有标签（预设+自定义），统一格式 { id, name, type, matchId }
     selectedColorHex: '',
     // 尺码相关（衣服按10递进，鞋子按5递进）
     sizeOptions: ['50', '60', '70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170'],
@@ -76,14 +70,15 @@ Page({
     if (editId) {
       // 有编辑ID时，先加载数据再设置编辑状态
       this.loadChildren(() => {
-        this.loadCustomTags()
-        this.loadEditData(editId)
-        app.globalData.editClothesId = null
+        this.loadTags().then(() => {
+          this.loadEditData(editId)
+          app.globalData.editClothesId = null
+        })
       })
     } else {
       // 正常加载
       this.loadChildren()
-      this.loadCustomTags()
+      this.loadTags()
     }
   },
 
@@ -92,99 +87,128 @@ Page({
     const app = getApp()
     const editId = app.globalData.editClothesId
     
+    // 如果正在编辑中（已有编辑数据），不再重复加载
+    if (this.data.isEdit) {
+      return
+    }
+    
     if (editId) {
       console.log('add page onShow, editId from global:', editId)
       // 有编辑ID时，加载编辑数据
       this.loadChildren(() => {
-        this.loadCustomTags()
-        this.loadEditData(editId)
-        app.globalData.editClothesId = null
+        this.loadTags().then(() => {
+          this.loadEditData(editId)
+          app.globalData.editClothesId = null
+        })
       })
     } else {
       this.loadChildren()
-      this.loadCustomTags()
+      this.loadTags()
     }
   },
   
-  // 加载自定义标签
-  loadCustomTags() {
-    const customTags = wx.getStorageSync('customTags') || []
-    const tagOptions = [
-      { id: 'casual', name: '休闲' },
-      { id: 'formal', name: '正式' },
-      { id: 'sports', name: '运动' },
-      { id: 'daily', name: '日常' },
-      { id: 'party', name: '聚会' },
-      { id: 'basic', name: '基础款' },
-      { id: 'versatile', name: '百搭' }
-    ]
-    // 合并预设标签和自定义标签
-    const allTags = [...tagOptions, ...customTags]
-    this.setData({ tagOptions: allTags })
-  },
-
-  loadEditData(id) {
-    const clothes = wx.getStorageSync('clothes') || []
-    console.log('loadEditData called, id:', id)
-    console.log('clothes:', clothes)
-    
-    // 统一转换为字符串比较
-    const idStr = String(id)
-    const item = clothes.find(c => String(c.id) === idStr)
-    
-    if (item) {
-      console.log('found item:', item)
-      // 找到对应的宝贝名称
-      const children = wx.getStorageSync('children') || []
-      const child = children.find(c => String(c.id) === String(item.childId))
-      const colorItem = this.data.colorOptions.find(c => c.id === item.color)
-      
-      // 根据衣物类别设置尺码选项和单位
-      const isShoes = item.category === 'shoes'
-      const targetSizeOptions = isShoes ? this.data.shoesSizeOptions : this.data.sizeOptions
-      const sizeUnit = isShoes ? 'mm' : 'cm'
-      
-      // 先找到选中尺码对应的索引
-      const sizeIndex = targetSizeOptions.indexOf(String(item.size))
-      const validIndex = sizeIndex !== -1 ? sizeIndex : 0
-      
-      // 同时设置 currentSizeOptions 和 selectedSizeIndex
-      this.setData({
-        isEdit: true,
-        editId: item.id,
-        formData: {
-          name: item.name || '',
-          category: item.category || '',
-          gender: item.gender || '',
-          season: item.season || [],
-          size: item.size || '',
-          color: item.color || '',
-          tags: item.tags || [],
-          image: item.image || '',
-          childId: item.childId || ''
-        },
-        selectedChildName: child ? child.name : '',
-        selectedColorHex: colorItem ? colorItem.hex : '',
-        currentSizeOptions: targetSizeOptions,
-        sizeUnit: sizeUnit,
-        selectedSizeIndex: validIndex
-      })
-    } else {
-      console.log('未找到衣物数据')
+  // 加载所有标签（预设+自定义）
+  async loadTags() {
+    try {
+      const result = await cloud.tags.get()
+      const preset = (result.preset || []).map(tag => ({
+        ...tag,
+        id: tag.id || tag._id,
+        type: 'preset',
+        matchId: tag.id || tag._id
+      }))
+      const custom = (result.custom || []).map(tag => ({
+        ...tag,
+        type: 'custom',
+        matchId: tag._id
+      }))
+      this.setData({ allTags: [...preset, ...custom] })
+    } catch (err) {
+      console.error('获取标签失败:', err)
+      // 失败时使用空数组
+      this.setData({ allTags: [] })
     }
   },
 
-  loadChildren(callback) {
-    const children = wx.getStorageSync('children') || []
-    this.setData({ children }, () => {
-      if (children.length > 0 && !this.data.formData.childId && !this.data.isEdit) {
-        this.setData({
-          'formData.childId': children[0].id,
-          selectedChildName: children[0].name
+  async loadEditData(id) {
+    try {
+      const item = await cloud.clothes.getById(id)
+      console.log('loadEditData called, id:', id)
+      console.log('loaded item:', item)
+      
+      if (item) {
+        // 从已加载的宝贝列表中找到对应的宝贝名称
+        const children = this.data.children || []
+        const child = children.find(c => 
+          String(c.id) === String(item.childId) || 
+          String(c._id) === String(item.childId)
+        )
+        const colorItem = this.data.colorOptions.find(c => c.id === item.color)
+        
+        // 根据衣物类别设置尺码选项和单位
+        const isShoes = item.category === 'shoes'
+        const targetSizeOptions = isShoes ? this.data.shoesSizeOptions : this.data.sizeOptions
+        const sizeUnit = isShoes ? 'mm' : 'cm'
+        
+        // 先找到选中尺码对应的索引
+        const sizeIndex = targetSizeOptions.indexOf(String(item.size))
+        const validIndex = sizeIndex !== -1 ? sizeIndex : 0
+        
+        // 将标签 id 转换为 matchId
+        const allTags = this.data.allTags || []
+        const tagIds = item.tags || []
+        const matchIds = tagIds.map(tid => {
+          const tag = allTags.find(t => t.id === tid || t._id === tid || t.matchId === tid)
+          return tag ? tag.matchId : tid
         })
+        
+        // 同时设置 currentSizeOptions 和 selectedSizeIndex
+        this.setData({
+          isEdit: true,
+          editId: item._id || item.id,
+          oldImageId: item.image || '',  // 保存旧图片ID
+          formData: {
+            name: item.name || '',
+            category: item.category || '',
+            gender: item.gender || '',
+            season: item.season || [],
+            size: item.size || '',
+            color: item.color || '',
+            tags: matchIds,
+            image: item.image || '',
+            childId: item.childId || ''
+          },
+          selectedChildName: child ? child.name : '',
+          selectedColorHex: colorItem ? colorItem.hex : '',
+          currentSizeOptions: targetSizeOptions,
+          sizeUnit: sizeUnit,
+          selectedSizeIndex: validIndex
+        })
+      } else {
+        console.log('未找到衣物数据')
       }
+    } catch (err) {
+      console.error('加载衣物数据失败:', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
+  },
+
+  async loadChildren(callback) {
+    try {
+      const children = await cloud.children.get()
+      this.setData({ children }, () => {
+        if (children && children.length > 0 && !this.data.formData.childId && !this.data.isEdit) {
+          this.setData({
+            'formData.childId': children[0]._id,
+            selectedChildName: children[0].name
+          })
+        }
+        if (callback) callback()
+      })
+    } catch (err) {
+      console.error('获取宝贝列表失败:', err)
       if (callback) callback()
-    })
+    }
   },
 
   chooseImage() {
@@ -208,7 +232,7 @@ Page({
       sourceType: ['camera'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath
-        this.setData({ 'formData.image': tempFilePath })
+        this.uploadToCloud(tempFilePath)
       }
     })
   },
@@ -220,7 +244,55 @@ Page({
       sourceType: ['album'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath
-        this.setData({ 'formData.image': tempFilePath })
+        this.uploadToCloud(tempFilePath)
+      }
+    })
+  },
+
+  // 上传图片到云存储
+  uploadToCloud(filePath) {
+    wx.showLoading({ title: '上传中...' })
+    
+    // 生成云存储路径：clothes/{openid}/{timestamp}.jpg
+    const timestamp = Date.now()
+    const cloudPath = `clothes/${timestamp}.jpg`
+    
+    wx.cloud.uploadFile({
+      cloudPath,
+      filePath,
+      success: (res) => {
+        wx.hideLoading()
+        // 保存云文件 ID
+        this.setData({ 'formData.image': res.fileID })
+        wx.showToast({ title: '上传成功', icon: 'success' })
+        
+        // 编辑模式下，删除旧图片（只删除云存储文件，不删除临时路径）
+        const oldImageId = this.data.oldImageId
+        if (oldImageId && oldImageId.startsWith('cloud://') && oldImageId !== res.fileID) {
+          wx.cloud.deleteFile({
+            fileList: [oldImageId],
+            success: () => {
+              console.log('旧图片已删除:', oldImageId)
+            },
+            fail: (err) => {
+              console.error('删除旧图片失败:', err)
+            }
+          })
+          // 清空旧图片ID
+          this.setData({ oldImageId: '' })
+        }
+        
+        // 新增模式下，保存上传的图片ID（提交前取消需删除）
+        if (!this.data.isEdit) {
+          this.setData({ uploadedImageId: res.fileID })
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading()
+        console.error('上传失败:', err)
+        wx.showToast({ title: '上传失败', icon: 'none' })
+        // 上传失败时，仍使用临时路径
+        this.setData({ 'formData.image': filePath })
       }
     })
   },
@@ -234,7 +306,7 @@ Page({
     const index = e.detail.value
     const child = this.data.children[index]
     this.setData({
-      'formData.childId': child.id,
+      'formData.childId': child._id || child.id,
       selectedChildName: child.name
     })
   },
@@ -294,6 +366,13 @@ Page({
       newSeason.push(seasonId)
     }
     
+    // 如果四个季节都选中了，存储为 'all'
+    const allSeasons = ['spring', 'summer', 'autumn', 'winter']
+    const hasAllSeasons = allSeasons.every(s => newSeason.includes(s))
+    if (hasAllSeasons) {
+      newSeason = ['all']
+    }
+    
     this.setData({ 'formData.season': newSeason })
   },
 
@@ -307,14 +386,14 @@ Page({
   },
 
   toggleTag(e) {
-    const tagId = e.currentTarget.dataset.id
+    const matchId = e.currentTarget.dataset.id
     const currentTags = this.data.formData.tags
     let newTags = []
     
     // 检查是否已选中
     let found = false
     for (let i = 0; i < currentTags.length; i++) {
-      if (currentTags[i] === tagId) {
+      if (currentTags[i] === matchId) {
         found = true
       } else {
         newTags.push(currentTags[i])
@@ -323,7 +402,7 @@ Page({
     
     // 如果没找到就添加
     if (!found) {
-      newTags.push(tagId)
+      newTags.push(matchId)
     }
     
     this.setData({ 'formData.tags': newTags })
@@ -333,115 +412,157 @@ Page({
     this.setData({ customTag: e.detail.value })
   },
 
-  addCustomTag() {
+  async addCustomTag() {
     const customTag = this.data.customTag.trim()
     if (!customTag) {
       wx.showToast({ title: '请输入标签', icon: 'none' })
       return
     }
     
-    const tagId = 'custom_' + Date.now()
-    const newTag = { id: tagId, name: customTag }
-    
-    // 保存到 storage
-    const customTags = wx.getStorageSync('customTags') || []
-    customTags.push(newTag)
-    wx.setStorageSync('customTags', customTags)
-    
-    // 更新 tagOptions 并选中
-    const tagOptions = [...this.data.tagOptions, newTag]
-    const tags = [...this.data.formData.tags, tagId]
-    
-    this.setData({
-      tagOptions,
-      'formData.tags': tags,
-      customTag: ''
-    })
+    try {
+      const result = await cloud.tags.add({
+        name: customTag,
+        color: '#' + Math.random().toString(16).slice(2, 8)
+      })
+      
+      // 新标签添加 matchId（自定义标签用 _id 即 result.id）
+      const newTag = {
+        ...result,
+        type: 'custom',
+        matchId: result.id
+      }
+      const tags = [...this.data.formData.tags, newTag.matchId]
+      
+      this.setData({
+        allTags: [...this.data.allTags, newTag],
+        'formData.tags': tags,
+        customTag: ''
+      })
+    } catch (err) {
+      wx.showToast({ title: err.message || '添加失败', icon: 'none' })
+    }
   },
 
   onCancel() {
+    this.goBack()
+  },
+
+  goBack() {
     // 清理编辑状态
     wx.removeStorageSync('editClothesId')
     
-    // 重置表单
-    const firstChild = this.data.children[0]
-    this.setData({
-      isEdit: false,
-      editId: '',
-      customTag: '',
-      formData: {
-        name: '',
-        category: '',
-        gender: '',
-        season: [],
-        size: '',
-        color: '',
-        tags: [],
-        image: '',
-        childId: firstChild ? firstChild.id : ''
-      },
-      selectedChildName: firstChild ? firstChild.name : '',
-      selectedColorHex: ''
-    })
-    // 返回衣橱页面
-    wx.switchTab({ url: '/pages/wardrobe/wardrobe' })
+    const { isEdit, oldImageId, uploadedImageId, formData } = this.data
+    const currentImage = formData.image
+    
+    // 编辑模式下：删除未使用的新图片
+    if (isEdit && oldImageId && currentImage && 
+        currentImage.startsWith('cloud://') && currentImage !== oldImageId) {
+      wx.cloud.deleteFile({
+        fileList: [currentImage],
+        success: () => {
+          console.log('未使用的新图片已删除:', currentImage)
+        },
+        fail: (err) => {
+          console.error('删除未使用图片失败:', err)
+        }
+      })
+    }
+    
+    // 新增模式下：删除上传但未使用的图片
+    if (!isEdit && uploadedImageId && currentImage === uploadedImageId) {
+      wx.cloud.deleteFile({
+        fileList: [uploadedImageId],
+        success: () => {
+          console.log('新增未使用的图片已删除:', uploadedImageId)
+        },
+        fail: (err) => {
+          console.error('删除未使用图片失败:', err)
+        }
+      })
+    }
+    
+    wx.navigateBack()
   },
 
-  submitForm() {
+  async submitForm() {
     const { formData, isEdit, editId } = this.data
     
+    // 必填项检查
+    if (!formData.image) {
+      wx.showToast({ title: '请上传照片', icon: 'none' })
+      return
+    }
     if (!formData.name) {
       wx.showToast({ title: '请输入名称', icon: 'none' })
       return
     }
     if (!formData.category) {
-      wx.showToast({ title: '请选择类型', icon: 'none' })
+      wx.showToast({ title: '请选择衣服类型', icon: 'none' })
       return
     }
     if (!formData.gender) {
       wx.showToast({ title: '请选择性别', icon: 'none' })
       return
     }
-    
-    const clothes = wx.getStorageSync('clothes') || []
-    
-    if (isEdit) {
-      // 编辑模式：更新现有数据
-      const index = clothes.findIndex(c => c.id === editId)
-      if (index !== -1) {
-        clothes[index] = {
-          ...clothes[index],
+    if (!formData.season || formData.season.length === 0) {
+      wx.showToast({ title: '请选择适合季节', icon: 'none' })
+      return
+    }
+    if (!formData.size) {
+      wx.showToast({ title: '请选择尺码', icon: 'none' })
+      return
+    }
+    try {
+      if (isEdit) {
+        // 编辑模式：更新现有数据
+        await cloud.clothes.update(editId, {
           ...formData,
+          sizeUnit: this.data.sizeUnit,
           categoryText: this.getCategoryText(formData.category),
           genderText: this.getGenderText(formData.gender)
-        }
-        wx.setStorageSync('clothes', clothes)
+        })
         wx.showToast({ title: '修改成功', icon: 'success' })
-        
-        setTimeout(() => {
-          // 返回衣橱页面
-          wx.switchTab({ url: '/pages/wardrobe/wardrobe' })
-        }, 1500)
-      }
-    } else {
-      // 新增模式
-      const newClothes = {
-        id: Date.now(),
-        ...formData,
-        categoryText: this.getCategoryText(formData.category),
-        genderText: this.getGenderText(formData.gender),
-        wearCount: 0,
-        createTime: new Date().toISOString()
+      } else {
+        // 新增模式
+        await cloud.clothes.add({
+          ...formData,
+          sizeUnit: this.data.sizeUnit,
+          categoryText: this.getCategoryText(formData.category),
+          genderText: this.getGenderText(formData.gender)
+        })
+        wx.showToast({ title: '添加成功', icon: 'success' })
       }
       
-      clothes.push(newClothes)
-      wx.setStorageSync('clothes', clothes)
-      
-      wx.showToast({ title: '添加成功', icon: 'success' })
+      // 保存成功后重置表单状态
+      const firstChild = this.data.children[0]
+      this.setData({
+        isEdit: false,
+        editId: '',
+        oldImageId: '',
+        uploadedImageId: '',
+        customTag: '',
+        sizeUnit: 'cm',
+        formData: {
+          name: '',
+          category: '',
+          gender: '',
+          season: [],
+          size: '',
+          color: '',
+          tags: [],
+          image: '',
+          childId: firstChild ? (firstChild._id || firstChild.id) : ''
+        },
+        selectedChildName: firstChild ? firstChild.name : '',
+        selectedColorHex: ''
+      })
       
       setTimeout(() => {
-        wx.switchTab({ url: '/pages/wardrobe/wardrobe' })
+        // 返回衣橱页面
+        wx.navigateBack()
       }, 1500)
+    } catch (err) {
+      wx.showToast({ title: err.message || '操作失败', icon: 'none' })
     }
   },
 

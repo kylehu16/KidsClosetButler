@@ -91,6 +91,25 @@
   margin-bottom: 16rpx;
 }
 
+.section-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.section-label-row .section-label {
+  margin-bottom: 0;
+}
+
+.get-weather-btn {
+  font-size: 24rpx;
+  color: #AD46FF;
+  padding: 8rpx 16rpx;
+  background: #F5EEFF;
+  border-radius: 20rpx;
+}
+
 .child-list {
   display: flex;
   gap: 16rpx;
@@ -244,32 +263,19 @@
 }
 
 .more-icon {
-  width: 40rpx;
-  height: 40rpx;
+  width: 48rpx;
+  height: 48rpx;
   background: #F3F4F6;
-  border-radius: 12rpx;
+  border-radius: 50%;
   position: relative;
-}
-
-.more-icon::before,
-.more-icon::after {
-  content: '';
-  position: absolute;
-  background: #364153;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .more-icon::before {
-  width: 16rpx;
-  height: 3rpx;
-  top: 12rpx;
-  left: 8rpx;
-}
-
-.more-icon::after {
-  width: 16rpx;
-  height: 3rpx;
-  top: 20rpx;
-  left: 8rpx;
+  content: '🔄';
+  font-size: 28rpx;
 }
 
 .recommend-items {
@@ -532,7 +538,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  margin-bottom: 8rpx;
 }
 
 .saved-name {
@@ -541,32 +547,55 @@
   color: #0A0A0A;
 }
 
-.saved-date {
+.saved-child {
   font-size: 24rpx;
   color: #6A7282;
 }
 
 .saved-items {
   display: flex;
-  gap: 12rpx;
+  gap: 16rpx;
   overflow-x: auto;
+  padding-bottom: 8rpx;
 }
 
 .saved-clothes {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160rpx;
 }
 
 .saved-img {
-  width: 120rpx;
-  height: 120rpx;
+  width: 160rpx;
+  height: 160rpx;
   background: #F3F4F6;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   overflow: hidden;
 }
 
 .saved-img image {
   width: 100%;
   height: 100%;
+}
+
+.saved-clothes-name {
+  font-size: 22rpx;
+  color: #364153;
+  margin-top: 8rpx;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160rpx;
+}
+
+.saved-clothes-size {
+  font-size: 20rpx;
+  color: #6A7282;
+  margin-top: 4rpx;
+  text-align: center;
 }
 
 .empty-state {
@@ -697,27 +726,12 @@
   box-shadow: none;
 }
 
-/* 已保存穿搭元信息 */
-.saved-meta {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  margin-bottom: 16rpx;
-  flex-wrap: wrap;
-}
-
-.saved-child {
-  font-size: 24rpx;
-  color: #4A5565;
-  background: #F3F4F6;
-  padding: 6rpx 12rpx;
-  border-radius: 8rpx;
-}
-
+/* 已保存穿搭标签 */
 .saved-tags {
   display: flex;
   gap: 8rpx;
   flex-wrap: wrap;
+  margin-bottom: 16rpx;
 }
 
 .saved-tag {
@@ -746,4 +760,453 @@
   font-size: 26rpx;
   opacity: 0.9;
   text-decoration: underline;
+}
+
+/* ========== 穿搭记录模式样式 ========== */
+
+/* 月份选择器 */
+.month-picker {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  margin: 24rpx 32rpx;
+  border-radius: 20rpx;
+  background: #FFFFFF;
+  outline: 1.6rpx #F3F4F6 solid;
+  outline-offset: -1.6rpx;
+}
+
+.month-arrow-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background: #F3F4F6;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #4A5565;
+  font-weight: bold;
+}
+
+.month-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-info {
+  text-align: center;
+}
+
+.month-text {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #101828;
+}
+
+/* 筛选标签 */
+.filter-tabs {
+  display: flex;
+  gap: 16rpx;
+  margin: 0 32rpx 24rpx 32rpx;
+  overflow-x: auto;
+}
+
+.filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-tab {
+  padding: 12rpx 32rpx;
+  background: #F3F4F6;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #4A5565;
+  white-space: nowrap;
+}
+
+.filter-tab.active {
+  background: #00C950;
+  color: #FFFFFF;
+}
+
+/* 统计卡片 */
+.stats-row {
+  display: flex;
+  gap: 16rpx;
+  margin: 0 32rpx 24rpx 32rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  outline: 1.6rpx #F3F4F6 solid;
+  outline-offset: -1.6rpx;
+  padding: 32rpx 16rpx;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #101828;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #6A7282;
+  margin-top: 8rpx;
+}
+
+/* 记录卡片列表 */
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin: 0 32rpx 32rpx 32rpx;
+}
+
+.record-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  outline: 1.6rpx #F3F4F6 solid;
+  outline-offset: -1.6rpx;
+  overflow: hidden;
+}
+
+.record-header {
+  background: #F9FAFB;
+  padding: 32rpx;
+  border-bottom: 1.6rpx solid #F3F4F6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.date-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-day {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #101828;
+  line-height: 1;
+}
+
+.date-weekday {
+  font-size: 24rpx;
+  color: #6A7282;
+  margin-top: 4rpx;
+}
+
+.date-full {
+  font-size: 28rpx;
+  color: #4A5565;
+}
+
+.record-content {
+  padding: 32rpx;
+}
+
+.outfit-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.outfit-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #4A5565;
+  margin-right: 16rpx;
+}
+
+.outfit-dot.green {
+  background: #00C950;
+}
+
+.outfit-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #364153;
+  margin-right: 8rpx;
+}
+
+.outfit-child {
+  font-size: 24rpx;
+  color: #6A7282;
+}
+
+.outfit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+  margin-top: 8rpx;
+}
+
+.outfit-tag {
+  font-size: 22rpx;
+  color: #6A7282;
+  background: #F3F4F6;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.outfit-items {
+  display: flex;
+  gap: 24rpx;
+}
+
+.outfit-item {
+  flex: 1;
+  max-width: 200rpx;
+}
+
+.clothing-image {
+  width: 200rpx;
+  height: 266rpx;
+  background: #F3F4F6;
+  border-radius: 20rpx;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+}
+
+.clothing-image image {
+  width: 100%;
+  height: 100%;
+}
+
+.clothing-name {
+  font-size: 24rpx;
+  color: #4A5565;
+  text-align: center;
+  margin-bottom: 4rpx;
+}
+
+.clothing-category {
+  font-size: 24rpx;
+  color: #99A1AF;
+  text-align: center;
+}
+
+/* 添加搭配按钮 */
+.add-outfit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin: 24rpx 32rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(251, 100, 182, 0.3);
+}
+
+.add-icon {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.add-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* ========== 穿搭记录弹窗样式 ========== */
+.wear-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.wear-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wear-modal-content {
+  width: 80%;
+  max-width: 600rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+}
+
+.wear-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.wear-modal-section {
+  margin-bottom: 32rpx;
+}
+
+.wear-modal-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #101828;
+  margin-bottom: 16rpx;
+}
+
+.wear-child-list {
+  display: flex;
+  gap: 16rpx;
+}
+
+.wear-child-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  background: #F9FAFB;
+  border-radius: 16rpx;
+  border: 2rpx solid #E5E7EB;
+  transition: all 0.3s ease;
+}
+
+.wear-child-item.active {
+  background: #F0FDF4;
+  border-color: #00C950;
+}
+
+.wear-child-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-bottom: 12rpx;
+}
+
+.wear-child-name {
+  font-size: 24rpx;
+  color: #364153;
+  font-weight: 500;
+}
+
+.wear-date-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  background: #F9FAFB;
+  border-radius: 16rpx;
+  border: 2rpx solid #E5E7EB;
+  font-size: 28rpx;
+  color: #101828;
+}
+
+.wear-date-arrow {
+  color: #6A7282;
+  font-size: 24rpx;
+}
+
+.wear-modal-btns {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+
+.wear-btn-cancel {
+  flex: 1;
+  padding: 24rpx;
+  background: #F3F4F6;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #6A7282;
+  font-weight: 500;
+}
+
+.wear-btn-confirm {
+  flex: 1;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(251, 100, 182, 0.3);
+}
+
+/* ========== 穿这套按钮样式 ========== */
+.saved-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16rpx 24rpx 24rpx;
+}
+
+.wear-btn {
+  padding: 16rpx 40rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(251, 100, 182, 0.3);
+  transition: all 0.3s ease;
+}
+
+.wear-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(251, 100, 182, 0.2);
+}
+
+/* ========== 穿搭记录卡片样式 ========== */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.delete-btn {
+  padding: 8rpx 24rpx;
+  background: #FEF2F2;
+  border: 2rpx solid #FECACA;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #EF4444;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:active {
+  background: #FEE2E2;
+  transform: scale(0.95);
 }

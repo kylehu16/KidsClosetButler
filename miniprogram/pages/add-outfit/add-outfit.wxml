@@ -1,0 +1,140 @@
+<wxs module="utils">
+module.exports = {
+  inArray: function(arr, item) {
+    if (!arr || !item) return false
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] === item) return true
+    }
+    return false
+  }
+}
+</wxs>
+
+<view class="add-outfit-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">{{isEdit ? '编辑搭配' : '添加搭配'}}</view>
+  </view>
+
+  <view class="form-content">
+    <!-- 搭配名称 -->
+    <view class="form-section">
+      <view class="form-label">搭配名称（可选）</view>
+      <view class="form-input-wrap">
+        <input 
+          class="form-input" 
+          placeholder="例如：春游搭配"
+          placeholder-class="input-placeholder"
+          bindinput="onOutfitNameInput"
+          value="{{outfitName}}"
+        />
+      </view>
+    </view>
+
+    <!-- 选择宝贝 -->
+    <view class="form-section">
+      <view class="form-label">选择宝贝</view>
+      <view class="child-list">
+        <view 
+          wx:for="{{children}}" 
+          wx:key="id"
+          class="child-card {{utils.inArray(selectedChildIds, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectChild"
+        >
+          <view class="child-avatar">{{item.avatar}}</view>
+          <view class="child-info">
+            <view class="child-name">{{item.name}}</view>
+            <view class="child-desc">
+              <text wx:if="{{item.age}}">{{item.age}}岁</text>
+              <text wx:if="{{item.heightText}}"> · 身高{{item.heightText}}</text>
+              <text wx:if="{{item.footLengthText}}"> · 脚长{{item.footLengthText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view class="form-section">
+      <view class="form-label">标签</view>
+      <view class="tag-list">
+        <view 
+          wx:for="{{allTags}}" 
+          wx:key="matchId"
+          class="tag-item {{utils.inArray(selectedTags, item.matchId) ? 'active' : ''}}"
+          data-id="{{item.matchId}}"
+          bindtap="toggleTag"
+        >{{item.name}}</view>
+      </view>
+      <view class="custom-tag-row">
+        <input 
+          class="custom-tag-input" 
+          placeholder="添加自定义标签"
+          bindinput="onTagInput"
+          value="{{customTag}}"
+        />
+        <view class="custom-tag-btn" bindtap="addCustomTag">添加</view>
+      </view>
+    </view>
+
+    <!-- 选择衣物 -->
+    <view class="form-section">
+      <view class="form-label">选择衣物（已选 {{selectedClothes.length}} 件）</view>
+      
+      <!-- 搜索栏 -->
+      <view class="search-bar">
+        <view class="search-input-wrap">
+          <text class="search-icon">🔍</text>
+          <input 
+            class="search-input" 
+            placeholder="搜索衣物名称"
+            placeholder-class="search-placeholder"
+            bindinput="onSearchInput"
+            value="{{searchKey}}"
+          />
+        </view>
+      </view>
+
+      <!-- 分类标签 -->
+      <view class="category-list">
+        <view 
+          wx:for="{{categoryOptions}}" 
+          wx:key="id"
+          class="category-item {{categoryFilter === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectCategory"
+        >{{item.name}}</view>
+      </view>
+
+      <!-- 衣物网格 -->
+      <view class="clothes-grid">
+        <view 
+          wx:for="{{filteredClothes}}" 
+          wx:key="id"
+          class="clothes-item {{utils.inArray(selectedClothes, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="toggleClothes"
+        >
+          <view class="clothes-img">
+            <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+            <view wx:else class="img-placeholder">{{item.name[0]}}</view>
+          </view>
+          <view class="clothes-name">{{item.name}}</view>
+          <view class="clothes-info">
+            <text class="clothes-type">{{item.categoryText}}</text>
+            <text class="clothes-size" wx:if="{{item.size}}"> · {{item.size}}{{item.sizeUnit || 'cm'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 无结果提示 -->
+      <view wx:if="{{filteredClothes.length === 0}}" class="empty-tip">
+        没有找到匹配的衣物
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <button class="save-btn" bindtap="saveOutfit">保存搭配</button>
+  </view>
+</view>

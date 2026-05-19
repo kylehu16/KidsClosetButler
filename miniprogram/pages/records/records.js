@@ -1,3 +1,4 @@
+const cloud = require('../../utils/cloud')
 const app = getApp();
 
 Page({
@@ -5,105 +6,52 @@ Page({
     currentYear: new Date().getFullYear(),
     currentMonth: new Date().getMonth() + 1,
     selectedChildId: null,
-    children: [
-      { id: 1, name: '小宝贝' },
-      { id: 2, name: '小淘气' }
-    ],
+    children: [],
     stats: {
-      days: 4,
-      wears: 10,
-      avgPerDay: 2.5
+      days: 0,
+      wears: 0,
+      avgPerDay: 0
     },
-    records: [
-      {
-        date: '2026-05-27',
-        day: 27,
-        weekday: '周一',
-        dateStr: '4月27日',
-        weather: '晴天',
-        temp: 22,
-        childId: 1,
-        childName: '小宝贝',
-        items: [
-          { id: 1, name: '白色T恤', category: '上衣', image: '/assets/images/clothing-1.png' },
-          { id: 2, name: '蓝色牛仔裤', category: '裤子', image: '/assets/images/clothing-2.png' },
-          { id: 3, name: '运动鞋', category: '鞋子', image: '/assets/images/clothing-3.png' }
-        ]
-      },
-      {
-        date: '2026-05-26',
-        day: 26,
-        weekday: '周日',
-        dateStr: '4月26日',
-        weather: '多云',
-        temp: 20,
-        childId: 1,
-        childName: '小宝贝',
-        items: [
-          { id: 4, name: '红色连衣裙', category: '裙子', image: '/assets/images/clothing-4.png' },
-          { id: 5, name: '小白鞋', category: '鞋子', image: '/assets/images/clothing-5.png' }
-        ]
-      },
-      {
-        date: '2026-05-25',
-        day: 25,
-        weekday: '周六',
-        dateStr: '4月25日',
-        weather: '晴天',
-        temp: 24,
-        childId: 2,
-        childName: '小淘气',
-        items: [
-          { id: 6, name: '粉色卫衣', category: '上衣', image: '/assets/images/clothing-6.png' },
-          { id: 7, name: '黑色短裤', category: '裤子', image: '/assets/images/clothing-7.png' },
-          { id: 8, name: '运动鞋', category: '鞋子', image: '/assets/images/clothing-8.png' }
-        ]
-      },
-      {
-        date: '2026-05-24',
-        day: 24,
-        weekday: '周五',
-        dateStr: '4月24日',
-        weather: '雨天',
-        temp: 18,
-        childId: 1,
-        childName: '小宝贝',
-        items: [
-          { id: 9, name: '白色T恤', category: '上衣', image: '/assets/images/clothing-1.png' },
-          { id: 10, name: '运动裤', category: '裤子', image: '/assets/images/clothing-9.png' }
-        ]
-      }
-    ],
+    records: [],
     filteredRecords: []
   },
 
-  onLoad() {
+  async onLoad() {
     // 获取当前年月
     const now = new Date();
-    this.setData({
-      currentYear: now.getFullYear(),
-      currentMonth: now.getMonth() + 1,
-      filteredRecords: this.data.records
-    });
+    try {
+      // 获取宝贝列表
+      const children = await cloud.children.get()
+      this.setData({
+        children: children || [],
+        currentYear: now.getFullYear(),
+        currentMonth: now.getMonth() + 1,
+        filteredRecords: []
+      })
+    } catch (err) {
+      console.error('获取宝贝列表失败:', err)
+      this.setData({
+        currentYear: now.getFullYear(),
+        currentMonth: now.getMonth() + 1,
+        filteredRecords: []
+      })
+    }
   },
 
-  selectChild(e) {
+  async selectChild(e) {
     const id = e.currentTarget.dataset.id;
     const newSelectedId = this.data.selectedChildId === id ? null : id;
-    const filteredRecords = newSelectedId 
-      ? this.data.records.filter(r => r.childId === newSelectedId)
-      : this.data.records;
     this.setData({
-      selectedChildId: newSelectedId,
-      filteredRecords
-    });
+      selectedChildId: newSelectedId
+    })
+    this.loadRecords()
   },
 
   selectAll() {
     this.setData({
-      selectedChildId: null,
-      filteredRecords: this.data.records
-    });
+      selectedChildId: null
+    })
+    this.loadRecords()
   },
 
   prevMonth() {
@@ -116,7 +64,8 @@ Page({
     this.setData({
       currentYear,
       currentMonth
-    });
+    })
+    this.loadRecords()
   },
 
   nextMonth() {
@@ -129,7 +78,47 @@ Page({
     this.setData({
       currentYear,
       currentMonth
-    });
+    })
+    this.loadRecords()
+  },
+
+  async loadRecords() {
+    try {
+      const { selectedChildId, currentYear, currentMonth } = this.data
+      
+      // 构建查询条件
+      const query = {}
+      if (selectedChildId) {
+        query.childId = selectedChildId
+      }
+      
+      // 获取穿衣记录
+      const records = await cloud.wearLogs.get(query)
+      
+      // 过滤当前月份的记录
+      const filtered = (records || []).filter(r => {
+        if (!r.date) return false
+        const d = new Date(r.date)
+        return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth
+      })
+      
+      // 统计数据
+      const uniqueDays = new Set(filtered.map(r => r.date))
+      const stats = {
+        days: uniqueDays.size,
+        wears: filtered.length,
+        avgPerDay: uniqueDays.size > 0 ? (filtered.length / uniqueDays.size).toFixed(1) : 0
+      }
+      
+      this.setData({
+        records: records || [],
+        filteredRecords: filtered,
+        stats
+      })
+    } catch (err) {
+      console.error('加载穿衣记录失败:', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
   },
 
   goBack() {

@@ -1,0 +1,9 @@
+{
+  "name": "getPresetData",
+  "version": "1.0.0",
+  "description": "获取预设数据（字典、单位、预设标签）",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

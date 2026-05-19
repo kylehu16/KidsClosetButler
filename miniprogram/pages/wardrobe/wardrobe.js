@@ -1,3 +1,5 @@
+const cloud = require('../../utils/cloud')
+
 Page({
   data: {
     categories: [
@@ -13,7 +15,15 @@ Page({
     categoryCount: 5,
     weekCount: 0,
     filteredClothes: [],
-    clothes: []
+    clothes: [],
+    // 季节映射
+    seasonMap: {
+      'all': '四季',
+      'spring': '春',
+      'summer': '夏',
+      'autumn': '秋',
+      'winter': '冬'
+    }
   },
   
   onLoad() {
@@ -24,38 +34,45 @@ Page({
     this.loadData()
   },
   
-  loadData() {
-    let clothes = wx.getStorageSync('clothes') || []
-    
-    // 如果衣物为空，添加默认示例数据
-    if (clothes.length === 0) {
-      clothes = [
-        { id: '1', name: '白色T恤', category: 'top', categoryText: '上衣', gender: 'boy', season: ['spring', 'summer'], size: '120', color: 'white', tags: ['casual', 'basic'], image: '', childId: '' },
-        { id: '2', name: '蓝色牛仔裤', category: 'pants', categoryText: '裤子', gender: 'boy', season: ['spring', 'autumn'], size: '120', color: 'blue', tags: ['casual'], image: '', childId: '' },
-        { id: '3', name: '粉色连衣裙', category: 'skirt', categoryText: '裙子', gender: 'girl', season: ['summer'], size: '120', color: 'pink', tags: ['party'], image: '', childId: '' },
-        { id: '4', name: '运动鞋', category: 'shoes', categoryText: '鞋子', gender: 'unisex', season: ['spring', 'summer', 'autumn'], size: '120', color: 'white', tags: ['sports'], image: '', childId: '' },
-        { id: '5', name: '牛仔外套', category: 'jacket', categoryText: '外套', gender: 'boy', season: ['spring', 'autumn'], size: '120', color: 'blue', tags: ['casual'], image: '', childId: '' }
-      ]
-      wx.setStorageSync('clothes', clothes)
+  async loadData() {
+    try {
+      const clothes = await cloud.clothes.get()
+      const outfits = await cloud.outfits.get()
+      const seasonMap = this.data.seasonMap
+      
+      // 处理季节显示和尺码单位
+      const processedClothes = (clothes || []).map(item => {
+        const seasons = item.season || []
+        let seasonText = '未知'
+        if (seasons.includes('all')) {
+          seasonText = '四季'
+        } else if (seasons.length > 0) {
+          seasonText = seasons.map(s => seasonMap[s] || s).join('')
+        }
+        // 使用存储的单位，兼容旧数据
+        const sizeUnit = item.sizeUnit || (item.category === 'shoes' ? 'mm' : 'cm')
+        return { ...item, seasonText, sizeUnit }
+      })
+      
+      const weekClothes = new Set()
+      outfits.forEach(o => {
+        if (o.items) o.items.forEach(id => weekClothes.add(id))
+      })
+      
+      this.setData({
+        clothes: processedClothes,
+        filteredClothes: processedClothes,
+        totalCount: processedClothes.length,
+        weekCount: weekClothes.size,
+        selectedCategory: 'all'  // 重置分类为全部
+      }, () => {
+        // setData 完成后调用 filterByCategory
+        this.filterByCategory()
+      })
+    } catch (err) {
+      console.error('加载数据失败:', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
     }
-    
-    const outfits = wx.getStorageSync('outfits') || []
-    
-    const weekClothes = new Set()
-    outfits.forEach(o => {
-      if (o.items) o.items.forEach(id => weekClothes.add(id))
-    })
-    
-    this.setData({
-      clothes,
-      filteredClothes: clothes,
-      totalCount: clothes.length,
-      weekCount: weekClothes.size,
-      selectedCategory: 'all'  // 重置分类为全部
-    }, () => {
-      // setData 完成后调用 filterByCategory
-      this.filterByCategory()
-    })
   },
   
   selectCategory(e) {
@@ -78,7 +95,13 @@ Page({
   goToDetail(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/clothes-detail/clothes-detail?id=${id}`
+      url: `/pages/add/add?id=${id}`
+    })
+  },
+
+  goToAdd() {
+    wx.navigateTo({
+      url: '/pages/add/add'
     })
   },
 
@@ -88,25 +111,26 @@ Page({
     console.log('wardrobe onEdit, id:', id)
     app.globalData.editClothesId = id
     console.log('globalData.editClothesId set to:', app.globalData.editClothesId)
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/add/add'
     })
   },
 
-  onDelete(e) {
+  async onDelete(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这件衣物吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const clothes = wx.getStorageSync('clothes') || []
-          const filtered = clothes.filter(c => c.id !== id)
-          wx.setStorageSync('clothes', filtered)
-          
-          // 刷新列表
-          this.loadData()
-          wx.showToast({ title: '删除成功', icon: 'success' })
+          try {
+            await cloud.clothes.delete(id)
+            // 刷新列表
+            this.loadData()
+            wx.showToast({ title: '删除成功', icon: 'success' })
+          } catch (err) {
+            wx.showToast({ title: err.message || '删除失败', icon: 'none' })
+          }
         }
       }
     })

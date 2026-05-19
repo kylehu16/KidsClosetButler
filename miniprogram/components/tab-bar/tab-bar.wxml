@@ -19,10 +19,5 @@
       />
     </view>
     <text class="tab-text">{{item.text}}</text>
-    <view wx:if="{{index === 2}}" class="add-center">
-      <view class="add-btn">
-        <text>+</text>
-      </view>
-    </view>
   </view>
 </view>

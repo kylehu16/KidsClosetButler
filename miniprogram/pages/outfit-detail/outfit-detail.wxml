@@ -7,7 +7,6 @@
   <view class="detail-content">
     <view class="detail-header">
       <text class="detail-name">{{outfit.name}}</text>
-      <text class="detail-date">{{outfit.date}}</text>
     </view>
 
     <view class="detail-meta" wx:if="{{outfit.childName}}">
@@ -18,25 +17,67 @@
       <view wx:for="{{displayTags}}" wx:key="index" class="detail-tag">{{item}}</view>
     </view>
 
-    <view class="detail-section">
-      <view class="detail-section-title">包含衣物</view>
-      <view class="detail-items">
-        <view wx:for="{{outfit.items}}" wx:key="id" class="detail-item">
-          <view class="detail-img">
-            <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
-            <view wx:else class="img-placeholder">
-              <text>{{item.name ? item.name[0] : '?'}}</text>
-            </view>
+    <view class="detail-items">
+      <view wx:for="{{outfit.itemDetails}}" wx:key="id" class="detail-item">
+        <view class="detail-img">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
+          <view wx:else class="img-placeholder">
+            <text>{{item.name ? item.name[0] : '?'}}</text>
           </view>
-          <view class="detail-item-name">{{item.name || '未知'}}</view>
-          <view class="detail-item-type">{{item.type || item.categoryText || ''}}</view>
+        </view>
+        <view class="detail-item-name">{{item.name || '未知'}}</view>
+        <view class="detail-item-info">
+          <text class="detail-item-type">{{item.type || item.categoryText || ''}}</text>
+          <text class="detail-item-size" wx:if="{{item.size}}">{{item.size}}{{item.sizeUnit || 'cm'}}</text>
         </view>
       </view>
     </view>
   </view>
 
   <view class="detail-actions">
+    <button class="wear-btn" bindtap="wearThisOutfit">穿这套</button>
     <button class="edit-btn" bindtap="editOutfit">编辑这套穿搭</button>
     <button class="delete-btn" bindtap="deleteOutfit">删除这套穿搭</button>
+  </view>
+</view>
+
+<!-- 穿这套弹窗 -->
+<view class="wear-modal {{showWearModal ? 'show' : ''}}" bindtap="hideWearModal">
+  <view class="wear-modal-content" catchtap="stopPropagation">
+    <view class="wear-modal-title">记录穿搭</view>
+    
+    <!-- 选择儿童 -->
+    <view class="wear-modal-section">
+      <view class="wear-modal-label">选择儿童</view>
+      <view class="wear-child-list">
+        <view 
+          wx:for="{{children}}"
+          wx:key="id"
+          class="wear-child-item {{wearSelectedChildId === (item._id || item.id) ? 'active' : ''}}"
+          data-id="{{item._id || item.id}}"
+          bindtap="selectWearChild"
+        >
+          <view class="wear-child-avatar">{{item.avatar || item.name[0] || '?'}}</view>
+          <view class="wear-child-name">{{item.name}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 选择日期 -->
+    <view class="wear-modal-section">
+      <view class="wear-modal-label">选择日期</view>
+      <picker mode="date" value="{{wearDate}}" bindchange="onWearDateChange">
+        <view class="wear-date-picker">
+          <text>{{wearDate || '请选择日期'}}</text>
+          <text class="wear-date-arrow">▸</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 按钮 -->
+    <view class="wear-modal-btns">
+      <view class="wear-btn-cancel" bindtap="hideWearModal">取消</view>
+      <view class="wear-btn-confirm" bindtap="confirmWear">确定</view>
+    </view>
   </view>
 </view>

@@ -1,0 +1,9 @@
+{
+  "name": "manageClothes",
+  "version": "1.0.0",
+  "description": "衣物管理（增删改查、筛选）",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

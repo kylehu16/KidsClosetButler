@@ -31,6 +31,11 @@
     </view>
   </view>
   
+  <view class="add-btn" bindtap="goToAdd">
+    <text class="add-btn-icon">+</text>
+    <text class="add-btn-text">添加衣物</text>
+  </view>
+  
   <scroll-view class="clothes-list" scroll-y>
     <view class="clothes-grid">
       <view 
@@ -47,8 +52,9 @@
         <view class="clothes-info">
           <view class="clothes-name">{{item.name}}</view>
           <view class="clothes-meta">
-            <text class="tag tag-gray">{{item.size}}码</text>
+            <text class="tag tag-gray">{{item.size}}{{item.sizeUnit}}</text>
             <text class="tag tag-gray">{{item.categoryText}}</text>
+            <text class="tag tag-purple">{{item.seasonText}}</text>
           </view>
         </view>
         <view class="clothes-actions">
@@ -63,7 +69,7 @@
     </view>
     
     <view wx:if="{{filteredClothes.length === 0}}" class="empty-state">
-      <text class="empty-text">暂无衣物，点击下方+添加</text>
+      <text class="empty-text">暂无衣物，点击上方"添加衣物"</text>
     </view>
   </scroll-view>
   

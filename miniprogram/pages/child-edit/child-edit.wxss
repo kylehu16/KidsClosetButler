@@ -66,6 +66,17 @@
   box-sizing: border-box;
 }
 
+.picker-input {
+  display: flex;
+  align-items: center;
+  color: #0A0A0A;
+}
+
+.picker-input:empty::before {
+  content: '请选择出生日期';
+  color: #9CA3AF;
+}
+
 .form-row {
   display: flex;
   gap: 24rpx;

@@ -1,7 +1,9 @@
 .wardrobe-page {
   min-height: 100vh;
   background: #F9FAFB;
-  padding-bottom: 140rpx;
+  padding-bottom: calc(120rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .nav-bar {
@@ -51,7 +53,7 @@
 
 .stats-cards {
   display: flex;
-  padding: 24rpx 32rpx;
+  padding: 24rpx 32rpx 12rpx;
   gap: 20rpx;
 }
 
@@ -77,7 +79,8 @@
 }
 
 .clothes-list {
-  height: calc(100vh - 500rpx);
+  height: calc(100vh - 640rpx - constant(safe-area-inset-bottom));
+  height: calc(100vh - 640rpx - env(safe-area-inset-bottom));
 }
 
 .clothes-grid {
@@ -85,6 +88,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
   margin: 0 24rpx;
+  padding-bottom: 40rpx;
   box-sizing: border-box;
 }
 
@@ -178,4 +182,28 @@
 .empty-text {
   font-size: 28rpx;
   color: #9CA3AF;
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin: 12rpx 24rpx 16rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(251, 100, 182, 0.3);
+}
+
+.add-btn-icon {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.add-btn-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #FFFFFF;
 }

@@ -1,0 +1,9 @@
+{
+  "name": "recordWearLog",
+  "version": "1.0.0",
+  "description": "穿衣记录管理",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

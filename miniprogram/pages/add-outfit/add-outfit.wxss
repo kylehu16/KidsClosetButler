@@ -1,0 +1,304 @@
+.add-outfit-page {
+  min-height: 100vh;
+  background: #F9FAFB;
+  padding-bottom: 140rpx;
+}
+
+.nav-bar {
+  height: 180rpx;
+  padding: 0 32rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20rpx;
+  position: relative;
+}
+
+.nav-back {
+  position: absolute;
+  left: 32rpx;
+  bottom: 20rpx;
+  font-size: 40rpx;
+  color: #FFFFFF;
+  padding: 10rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.form-content {
+  padding: 32rpx;
+}
+
+.form-section {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 16rpx;
+}
+
+.form-input-wrap {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 0 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  font-size: 30rpx;
+  color: #0A0A0A;
+}
+
+.input-placeholder {
+  color: #9CA3AF;
+}
+
+/* 宝贝列表 */
+.child-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.child-card {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  border: 2rpx solid #E5E7EB;
+}
+
+.child-card.active {
+  background: #F0FDF4;
+  border-color: #00C950;
+}
+
+.child-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.child-info {
+  flex: 1;
+}
+
+.child-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #101828;
+}
+
+.child-desc {
+  font-size: 24rpx;
+  color: #6A7282;
+  margin-top: 4rpx;
+}
+
+/* 标签 */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-item {
+  padding: 12rpx 24rpx;
+  background: #F3F4F6;
+  border-radius: 100rpx;
+  font-size: 26rpx;
+  color: #4A5565;
+}
+
+.tag-item.active {
+  background: rgba(173, 70, 255, 0.1);
+  color: #AD46FF;
+}
+
+.custom-tag-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.custom-tag-input {
+  flex: 1;
+  height: 80rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  border: 1.6rpx solid #E5E7EB;
+  padding: 0 32rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.custom-tag-btn {
+  width: 120rpx;
+  height: 80rpx;
+  background: #AD46FF;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #FFFFFF;
+}
+
+/* 搜索栏 */
+.search-bar {
+  margin-bottom: 20rpx;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 100rpx;
+  padding: 0 32rpx;
+  height: 80rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #0A0A0A;
+}
+
+.search-placeholder {
+  color: #9CA3AF;
+}
+
+/* 分类标签 */
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.category-item {
+  padding: 12rpx 24rpx;
+  background: #F3F4F6;
+  border-radius: 100rpx;
+  font-size: 26rpx;
+  color: #4A5565;
+}
+
+.category-item.active {
+  background: rgba(173, 70, 255, 0.1);
+  color: #AD46FF;
+}
+
+/* 空结果提示 */
+.empty-tip {
+  text-align: center;
+  padding: 60rpx 0;
+  font-size: 28rpx;
+  color: #9CA3AF;
+}
+
+/* 衣物网格 */
+.clothes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.clothes-item {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  overflow: hidden;
+  border: 3.2rpx solid transparent;
+}
+
+.clothes-item.active {
+  border-color: #C27AFF;
+  background: #FAF5FF;
+}
+
+.clothes-img {
+  width: 100%;
+  height: 180rpx;
+  background: #F3F4F6;
+}
+
+.clothes-img image {
+  width: 100%;
+  height: 100%;
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  color: #FFFFFF;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.clothes-name {
+  padding: 12rpx 12rpx 4rpx;
+  font-size: 22rpx;
+  color: #1F2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clothes-info {
+  padding: 0 12rpx 12rpx;
+  font-size: 20rpx;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.clothes-type {
+  font-size: 20rpx;
+  color: #9CA3AF;
+}
+
+.clothes-size {
+  font-size: 20rpx;
+  color: #6A7282;
+}
+
+/* 保存按钮 */
+.save-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #AD46FF 0%, #8B2FD6 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 24rpx 0;
+  border-radius: 24rpx;
+  border: none;
+  margin-top: 32rpx;
+}

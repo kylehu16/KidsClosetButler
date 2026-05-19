@@ -1,0 +1,9 @@
+{
+  "name": "manageTags",
+  "version": "1.0.0",
+  "description": "标签管理（查询、创建、更新、删除）",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

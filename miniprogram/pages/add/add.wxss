@@ -6,17 +6,27 @@
 
 .nav-bar {
   height: 180rpx;
-  padding: 60rpx 32rpx 20rpx;
+  padding: 0 32rpx;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20rpx;
+  position: relative;
+}
+
+.nav-back {
+  position: absolute;
+  left: 32rpx;
+  bottom: 20rpx;
+  font-size: 40rpx;
+  color: #FFFFFF;
+  padding: 10rpx;
 }
 
 .nav-title {
   font-size: 36rpx;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 8rpx;
 }
 
 .nav-subtitle {
@@ -45,6 +55,13 @@
   font-weight: 500;
   color: #0A0A0A;
   margin-bottom: 16rpx;
+}
+
+.form-label.required::before {
+  content: '*';
+  color: #F04452;
+  margin-right: 6rpx;
+  font-weight: bold;
 }
 
 /* 上传区域 */

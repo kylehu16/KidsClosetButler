@@ -48,8 +48,69 @@
 }
 
 .user-avatar-icon {
-  font-size: 72rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 24rpx;
+  font-size: 72rpx;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* 头像按钮 - 去除默认样式 */
+.avatar-btn {
+  padding: 0;
+  margin: 0;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  font-size: 72rpx;
+  overflow: hidden;
+  border: none;
+  line-height: 1;
+  min-height: auto;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72rpx;
+}
+
+/* 昵称输入框 */
+.nickname-input {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 8rpx;
+  padding: 0;
+  border: none;
+  outline: none;
+}
+
+.user-role {
+  font-size: 26rpx;
+  color: #FB64B6;
 }
 
 .user-info {

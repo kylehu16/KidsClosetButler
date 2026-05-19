@@ -4,11 +4,17 @@
     "pages/outfit/outfit",
     "pages/outfit-detail/outfit-detail",
     "pages/add/add",
+    "pages/add-outfit/add-outfit",
     "pages/statistics/statistics",
     "pages/profile/profile",
     "pages/records/records",
     "pages/child-edit/child-edit"
   ],
+  "permission": {
+      "scope.userLocation": {
+        "desc": "你的位置信息将用于获取当前位置天气信息"
+      }
+  },
   "window": {
     "navigationBarTitleText": "儿童衣橱管家",
     "navigationStyle": "custom",
@@ -23,7 +29,6 @@
     "list": [
       { "pagePath": "pages/wardrobe/wardrobe", "text": "衣橱" },
       { "pagePath": "pages/outfit/outfit", "text": "穿搭" },
-      { "pagePath": "pages/add/add", "text": "添加" },
       { "pagePath": "pages/statistics/statistics", "text": "统计" },
       { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
