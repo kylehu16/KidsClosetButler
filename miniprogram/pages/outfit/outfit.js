@@ -622,29 +622,74 @@ Page({
   getLocationAndWeather() {
     const that = this
     
+    // 先检查权限状态
+    wx.getSetting({
+      success: (settingRes) => {
+        if (settingRes.authSetting['scope.userFuzzyLocation']) {
+          // 已授权，直接获取位置
+          that.getFuzzyLocation()
+        } else {
+          // 未授权，先请求权限
+          wx.authorize({
+            scope: 'scope.userFuzzyLocation',
+            success: () => {
+              // 授权成功，获取位置
+              that.getFuzzyLocation()
+            },
+            fail: (authErr) => {
+              that.setData({ locationLoading: false })
+              console.error('授权失败:', authErr)
+              
+              // 用户拒绝授权，引导到设置页面
+              wx.showModal({
+                title: '需要位置权限',
+                content: '获取天气信息需要您的位置权限，请在设置中开启',
+                confirmText: '去设置',
+                success: (modalRes) => {
+                  if (modalRes.confirm) {
+                    wx.openSetting({
+                      success: (settingRes) => {
+                        if (settingRes.authSetting['scope.userFuzzyLocation']) {
+                          that.getFuzzyLocation()
+                        }
+                      }
+                    })
+                  }
+                }
+              })
+            }
+          })
+        }
+      },
+      fail: () => {
+        that.getFuzzyLocation()
+      }
+    })
+  },
+
+  // 调用 getFuzzyLocation API
+  getFuzzyLocation() {
+    const that = this
+    
     wx.getFuzzyLocation({
       success: (locationRes) => {
-        const { city } = locationRes
+        const { latitude, longitude } = locationRes
         
         wx.cloud.callFunction({
           name: 'getWeather',
           data: {
-            city
+            latitude,
+            longitude
           },
           success: (weatherRes) => {
             that.setData({ locationLoading: false })
             
             if (weatherRes.result && weatherRes.result.code === 0) {
               const weatherData = weatherRes.result.result
-              // 直接使用云函数返回的weatherId，如果没有则转换
               const weatherId = weatherData.weatherId || that.convertToWeatherId(weatherData.weather)
-              
-              // 使用当前温度来判断温度区间
               const tempId = that.convertToTempId(weatherData.temperature)
               const weatherItem = that.data.weatherList.find(w => w.id === weatherId)
               const tempItem = that.data.tempList.find(t => t.id === tempId)
-              
-              // 更新未来天气与穿搭提醒
               const weekOutfits = that.generateWeekOutfits(weatherData.dailyForecast)
               
               that.setData({
@@ -676,8 +721,18 @@ Page({
       },
       fail: (err) => {
         that.setData({ locationLoading: false })
-        console.error('获取位置失败:', err)
-        wx.showToast({ title: '获取位置失败', icon: 'none' })
+        console.error('getFuzzyLocation 失败:', err)
+        
+        // 检查是否是权限问题
+        if (err.errMsg && err.errMsg.includes('no permission')) {
+          wx.showModal({
+            title: '权限未开通',
+            content: '请在微信公众平台后台开通 getFuzzyLocation 权限',
+            showCancel: false
+          })
+        } else {
+          wx.showToast({ title: '获取位置失败', icon: 'none' })
+        }
       }
     })
   },
