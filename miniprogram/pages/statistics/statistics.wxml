@@ -51,75 +51,110 @@
   </view>
   
   <view class="section">
-    <view class="section-title">热门穿搭 TOP5</view>
+    <view class="section-title">热门榜单 TOP10</view>
     <view class="ranking-list">
       <view 
-        wx:for="{{hotList}}" 
-        wx:key="id"
+        wx:for="{{pagedHotList}}" 
+        wx:key="_id"
         class="ranking-item card"
       >
-        <view class="rank-num {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+        <view class="rank-num {{item.rankIndex === 1 ? 'gold' : item.rankIndex === 2 ? 'silver' : item.rankIndex === 3 ? 'bronze' : 'normal'}}">{{item.rankIndex}}</view>
         <view class="rank-img">
           <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
           <view wx:else class="img-placeholder">{{item.name[0]}}</view>
         </view>
         <view class="rank-info">
           <view class="rank-name">{{item.name}}</view>
-          <view class="rank-meta">穿过{{item.wearCount}}次</view>
+          <view class="rank-meta">{{item.categoryText || item.category}}</view>
+        </view>
+        <view class="rank-count">
+          <text class="count-num">{{item.wearCount}}</text>
+          <text class="count-unit">次</text>
         </view>
       </view>
+    </view>
+    <view wx:if="{{hotList.length === 0}}" class="empty-tip">暂无穿着记录</view>
+    
+    <!-- 分页控件 -->
+    <view class="pagination" wx:if="{{totalPages > 1}}">
+      <view class="page-btn {{currentPage <= 1 ? 'disabled' : ''}}" bindtap="prevPage">上一页</view>
+      <text class="page-info">{{currentPage}} / {{totalPages}}</text>
+      <view class="page-btn {{currentPage >= totalPages ? 'disabled' : ''}}" bindtap="nextPage">下一页</view>
     </view>
   </view>
   
   <view class="section">
-    <view class="section-title">沉睡榜单</view>
-    <view class="ranking-list">
+    <view class="section-header-row">
+      <text class="section-title">沉睡榜单</text>
+      <text class="section-subtitle">（超过30天没穿）</text>
+    </view>
+    <view class="sleepy-grid">
       <view 
-        wx:for="{{coldList}}" 
-        wx:key="id"
-        class="ranking-item card cold"
+        wx:for="{{pagedColdList}}" 
+        wx:key="_id"
+        class="sleepy-card card"
       >
-        <view class="rank-num cold-num">🥶</view>
-        <view class="rank-img">
+        <view class="sleepy-img">
           <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
           <view wx:else class="img-placeholder">{{item.name[0]}}</view>
         </view>
-        <view class="rank-info">
-          <view class="rank-name">{{item.name}}</view>
-          <view class="rank-meta">已{{item.days}}天未穿</view>
+        <view class="sleepy-info">
+          <view class="sleepy-name">{{item.name}}</view>
+          <view class="sleepy-category">{{item.categoryText || item.category}}</view>
+          <view class="sleepy-days" wx:if="{{!item.neverWorn}}">已 {{item.days}} 天未穿</view>
+          <view class="sleepy-days never-worn" wx:else>尚未穿过</view>
         </view>
-        <view class="rank-tip">建议搭配</view>
       </view>
+    </view>
+    <view wx:if="{{coldList.length === 0}}" class="empty-tip">暂无沉睡衣物</view>
+    
+    <!-- 沉睡榜单分页控件 -->
+    <view class="pagination" wx:if="{{coldTotalPages > 1}}">
+      <view class="page-btn {{coldCurrentPage <= 1 ? 'disabled' : ''}}" bindtap="prevColdPage">上一页</view>
+      <text class="page-info">{{coldCurrentPage}} / {{coldTotalPages}}</text>
+      <view class="page-btn {{coldCurrentPage >= coldTotalPages ? 'disabled' : ''}}" bindtap="nextColdPage">下一页</view>
     </view>
   </view>
   
-  <!-- 穿搭组合统计 -->
-  <view class="section-card">
-    <view class="section-header">
-      <view class="section-icon green">
-        <image src="/assets/icons/stats.svg" mode="aspectFit"/>
-      </view>
-      <text class="section-title">穿搭组合统计</text>
-      <text class="section-subtitle">（各类别使用次数）</text>
+  <!-- 热门穿搭 TOP10 -->
+  <view class="section">
+    <view class="section-header-row">
+      <text class="section-title">热门穿搭 TOP10</text>
+      <text class="section-subtitle">（穿搭组合穿着次数）</text>
     </view>
-    <view class="outfit-chart">
-      <text class="chart-icon">📊</text>
-      <text class="chart-empty">暂无穿搭数据</text>
-      <text class="chart-hint">保存穿搭组合后将显示统计图表</text>
-    </view>
-    <view class="outfit-stats-row">
-      <view class="outfit-stat-item purple">
-        <text class="outfit-stat-num">{{totalOutfits}}</text>
-        <text class="outfit-stat-label">保存的穿搭组合</text>
+    <view class="ranking-list">
+      <view 
+        wx:for="{{pagedOutfitHotList}}" 
+        wx:key="_id"
+        class="ranking-item card"
+      >
+        <view class="outfit-clothes-row">
+          <view wx:for="{{item.items}}" wx:for-item="c" wx:key="_id" class="outfit-clothes-thumb">
+            <image wx:if="{{c.image}}" src="{{c.image}}" mode="aspectFill"/>
+            <view wx:else class="img-placeholder small">{{c.name[0]}}</view>
+          </view>
+        </view>
+        <view class="rank-info">
+          <view class="rank-name">{{item.name || '未命名穿搭'}}</view>
+          <view wx:if="{{item.occasion || item.weather}}" class="rank-meta">{{item.occasion || ''}}{{item.occasion && item.weather ? ' · ' : ''}}{{item.weather || ''}}</view>
+        </view>
+        <view class="rank-count">
+          <text class="count-num">{{item.wearCount}}</text>
+          <text class="count-unit">次</text>
+        </view>
       </view>
-      <view class="outfit-stat-item pink">
-        <text class="outfit-stat-num">{{topOutfitCount || '-'}}</text>
-        <text class="outfit-stat-label">用得最多的</text>
-      </view>
     </view>
+    <view wx:if="{{outfitHotList.length === 0}}" class="empty-tip">暂无穿搭数据</view>
+    
+    <!-- 分页控件 -->
+    <view class="pagination" wx:if="{{outfitTotalPages > 1}}">
+      <view class="page-btn {{outfitCurrentPage <= 1 ? 'disabled' : ''}}" bindtap="prevOutfitPage">上一页</view>
+      <text class="page-info">{{outfitCurrentPage}} / {{outfitTotalPages}}</text>
+      <view class="page-btn {{outfitCurrentPage >= outfitTotalPages ? 'disabled' : ''}}" bindtap="nextOutfitPage">下一页</view>
+    </view>
+  </view>
+  
 
-  </view>
-  
 
   
   <tab-bar currentIndex="2"></tab-bar>

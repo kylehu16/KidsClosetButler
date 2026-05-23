@@ -117,7 +117,7 @@
 }
 
 .section-card {
-  padding: 32rpx;
+  padding: 24rpx 32rpx;
 }
 
 .section-title {
@@ -125,6 +125,29 @@
   font-weight: 600;
   color: #1F2937;
   margin-bottom: 24rpx;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #9CA3AF;
+  margin-left: 8rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.section-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 12rpx;
+}
+
+.section-icon image {
+  width: 100%;
+  height: 100%;
 }
 
 .category-stats {
@@ -180,20 +203,35 @@
 .rank-num {
   width: 48rpx;
   height: 48rpx;
-  background: #F3F4F6;
+  background: #E5E7EB;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
-  font-weight: 600;
-  color: #6B7280;
+  font-weight: 700;
+  color: #374151;
   margin-right: 16rpx;
 }
 
-.rank-num.top {
-  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+.rank-num.gold {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   color: #FFFFFF;
+}
+
+.rank-num.silver {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+  color: #FFFFFF;
+}
+
+.rank-num.bronze {
+  background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
+  color: #FFFFFF;
+}
+
+.rank-num.normal {
+  background: #E5E7EB;
+  color: #374151;
 }
 
 .cold-num {
@@ -213,6 +251,38 @@
 .rank-img image {
   width: 100%;
   height: 100%;
+}
+
+.outfit-clothes-row {
+  display: flex;
+  gap: 8rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.outfit-clothes-thumb {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #F3F4F6;
+}
+
+.outfit-clothes-thumb image {
+  width: 100%;
+  height: 100%;
+}
+
+.img-placeholder.small {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: bold;
 }
 
 .img-placeholder {
@@ -256,30 +326,215 @@
   background: rgba(0, 166, 62, 0.1);
 }
 
+.hot-tip {
+  color: #FB6400;
+  background: rgba(251, 100, 0, 0.1);
+}
+
+/* 沉睡榜单 - 卡片网格 */
+.section-header-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-header-row .section-title {
+  margin-bottom: 0;
+}
+
+.section-icon-text {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.sleepy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.sleepy-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.sleepy-img {
+  width: 100%;
+  height: 200rpx;
+  overflow: hidden;
+  background: #F3F4F6;
+}
+
+.sleepy-img image {
+  width: 100%;
+  height: 100%;
+}
+
+.sleepy-info {
+  padding: 16rpx;
+}
+
+.sleepy-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1F2937;
+  margin-bottom: 4rpx;
+}
+
+.sleepy-category {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  margin-bottom: 8rpx;
+}
+
+.sleepy-days {
+  font-size: 24rpx;
+  color: #FB923C;
+}
+
+.sleepy-days.never-worn {
+  color: #9CA3AF;
+}
+
+/* 热门榜单 - 穿着次数 */
+.rank-count {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 8rpx 16rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.count-num {
+  color: #8B5CF6;
+}
+
+.count-unit {
+  color: #374151;
+  font-size: 24rpx;
+  font-weight: 400;
+}
+
+/* 分页控件 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24rpx 0;
+  gap: 32rpx;
+}
+
+.page-btn {
+  font-size: 28rpx;
+  color: #FB64B6;
+  padding: 12rpx 32rpx;
+  background: rgba(251, 100, 182, 0.1);
+  border-radius: 32rpx;
+}
+
+.page-btn.disabled {
+  color: #D1D5DB;
+  background: #F3F4F6;
+}
+
+.page-info {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+/* 穿搭组合样式 */
+.combo-item {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24rpx;
+}
+
+.combo-scroll {
+  width: 100%;
+  margin: 16rpx 0;
+  white-space: nowrap;
+}
+
+.combo-items {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.combo-clothes {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120rpx;
+}
+
+.combo-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #F3F4F6;
+  margin-bottom: 8rpx;
+}
+
+.combo-img image {
+  width: 100%;
+  height: 100%;
+}
+
+.combo-name {
+  font-size: 20rpx;
+  color: #6B7280;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 120rpx;
+}
+
+.combo-count {
+  font-size: 24rpx;
+  color: #FB64B6;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+  background: rgba(251, 100, 182, 0.1);
+  border-radius: 20rpx;
+  align-self: flex-end;
+}
+
+.empty-tip {
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 28rpx;
+  padding: 48rpx 0;
+}
+
 /* 穿搭组合统计 */
 .outfit-chart {
   background: #F9FAFB;
   border-radius: 20rpx;
-  padding: 160rpx 64rpx;
+  padding: 32rpx 24rpx;
   text-align: center;
   margin-bottom: 24rpx;
 }
 
 .chart-icon {
-  font-size: 72rpx;
+  font-size: 48rpx;
   display: block;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .chart-empty {
-  font-size: 32rpx;
+  font-size: 28rpx;
   color: #0A0A0A;
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 4rpx;
 }
 
 .chart-hint {
-  font-size: 28rpx;
+  font-size: 24rpx;
   color: #99A1AF;
 }
 
