@@ -99,62 +99,40 @@ exports.main = async (event, context) => {
     }
   }
 
+  // 并行：获取天气 + 反向地理编码获取城市名
+  const promises = [
+    fetchWeather(latitude, longitude),
+    getCityName(latitude, longitude, city)
+  ]
+
   try {
-    // 调用 Open-Meteo API 获取当前天气和每日预报
-    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&temperature_unit=celsius&wind_speed_unit=kmh`
+    const [weatherResult, cityName] = await Promise.all(promises)
 
-    const weatherData = await httpGet(apiUrl)
-
-    if (!weatherData || !weatherData.current_weather) {
+    if (!weatherResult) {
       return {
         code: -1,
         message: '获取天气数据失败'
       }
     }
 
-    const current = weatherData.current_weather
-    const wmoCode = current.weathercode
-    const weatherText = wmoToWeather[wmoCode] || '晴天'
-    const weatherId = wmoToWeatherId[wmoCode] || 'sunny'
-    const temperature = Math.round(current.temperature)
+    const { weatherText, weatherId: baseWeatherId, temperature, windSpeed, dailyForecast } = weatherResult
+    const finalWeatherId = windSpeed > 50 ? 'windy' : baseWeatherId
 
-    // 判断是否大风（风速 > 50 km/h）
-    const windSpeed = current.windspeed || 0
-    const finalWeatherId = windSpeed > 50 ? 'windy' : weatherId
-
-    // 获取未来3天的天气预报
-    let dailyForecast = []
-    
-    if (weatherData.daily && weatherData.daily.time) {
-      // 获取未来3天（今天+后两天）
-      const days = Math.min(3, weatherData.daily.time.length)
-      for (let i = 0; i < days; i++) {
-        const weatherCode = weatherData.daily.weathercode ? weatherData.daily.weathercode[i] : wmoCode
-        dailyForecast.push({
-          date: weatherData.daily.time[i],
-          weather: wmoToWeather[weatherCode] || '晴天',
-          weatherId: wmoToWeatherId[weatherCode] || 'sunny',
-          maxTemp: Math.round(weatherData.daily.temperature_2m_max[i]),
-          minTemp: Math.round(weatherData.daily.temperature_2m_min[i])
-        })
-      }
-    }
-    
-    // 今日温度
     const todayMax = dailyForecast[0] ? dailyForecast[0].maxTemp : temperature
     const todayMin = dailyForecast[0] ? dailyForecast[0].minTemp : temperature
-    
+
     return {
       code: 0,
       message: '获取成功',
       result: {
+        city: cityName,
         weather: weatherText,
         weatherId: finalWeatherId,
         temperature: temperature,
         maxTemp: todayMax,
         minTemp: todayMin,
         windSpeed: windSpeed,
-        dailyForecast: dailyForecast // 未来3天预报
+        dailyForecast: dailyForecast
       }
     }
   } catch (error) {
@@ -166,10 +144,60 @@ exports.main = async (event, context) => {
   }
 }
 
-// 封装 HTTP GET 请求
-function httpGet(url) {
+// 获取天气数据
+async function fetchWeather(latitude, longitude) {
+  const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&temperature_unit=celsius&wind_speed_unit=kmh`
+  const weatherData = await httpGet(apiUrl)
+  
+  if (!weatherData || !weatherData.current_weather) return null
+
+  const current = weatherData.current_weather
+  const wmoCode = current.weathercode
+  const weatherText = wmoToWeather[wmoCode] || '晴天'
+  const weatherId = wmoToWeatherId[wmoCode] || 'sunny'
+  const temperature = Math.round(current.temperature)
+  const windSpeed = current.windspeed || 0
+
+  let dailyForecast = []
+  if (weatherData.daily && weatherData.daily.time) {
+    const days = Math.min(3, weatherData.daily.time.length)
+    for (let i = 0; i < days; i++) {
+      const weatherCode = weatherData.daily.weathercode ? weatherData.daily.weathercode[i] : wmoCode
+      dailyForecast.push({
+        date: weatherData.daily.time[i],
+        weather: wmoToWeather[weatherCode] || '晴天',
+        weatherId: wmoToWeatherId[weatherCode] || 'sunny',
+        maxTemp: Math.round(weatherData.daily.temperature_2m_max[i]),
+        minTemp: Math.round(weatherData.daily.temperature_2m_min[i])
+      })
+    }
+  }
+
+  return { weatherText, weatherId, temperature, windSpeed, dailyForecast }
+}
+
+// 反向地理编码获取城市名（GPS定位时使用）
+async function getCityName(latitude, longitude, manualCity) {
+  // 手动输入的城市名直接返回
+  if (manualCity) return manualCity
+  
+  // GPS定位：通过反向地理编码获取城市名
+  if (!latitude || !longitude) return ''
+  
+  try {
+    const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=zh`
+    const geoData = await httpGet(geoUrl, 3000)
+    return geoData.city || geoData.locality || geoData.principalSubdivision || ''
+  } catch (err) {
+    console.error('反向地理编码失败:', err)
+    return ''
+  }
+}
+
+// 封装 HTTP GET 请求（带超时）
+function httpGet(url, timeout = 5000) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
+    const req = https.get(url, (res) => {
       let data = ''
       res.on('data', (chunk) => {
         data += chunk
@@ -181,8 +209,16 @@ function httpGet(url) {
           reject(e)
         }
       })
-    }).on('error', (err) => {
+    })
+    
+    req.on('error', (err) => {
       reject(err)
+    })
+    
+    // 设置超时
+    req.setTimeout(timeout, () => {
+      req.destroy()
+      reject(new Error('请求超时'))
     })
   })
 }

@@ -6,25 +6,15 @@ assets/
 
 # 依赖目录
 node_modules/
-cloudfunctions/*/node_modules/
-
-# 小程序 npm 构建产物
-miniprogram_npm/
 
 # 微信开发者工具相关
 .miniapp/
 project.private.config.json
 *.private.config.json
 
-# 环境变量
-.env
-.env.local
-.env.development
-
 # 编译产物
 dist/
 build/
-miniprogram/dist/
 
 # IDE 配置
 .idea/
@@ -41,12 +31,6 @@ miniprogram/dist/
 # 临时文件
 *.tmp
 .cache/
-临时*
-
-# OS 生成文件
-.DS_Store
-Thumbs.db
-desktop.ini
 
 # CloudBase CLI 本地配置（包含个人环境ID，不提交到仓库）
 cloudbaserc.json

@@ -132,17 +132,17 @@ async function getChildren(openId) {
 // 根据ID获取宝贝
 async function getChildById(id, openId) {
   const result = await db.collection('children')
-    .where({ _id: id })
+    .doc(id)
     .get()
-
-  if (!result.data || result.data.length === 0) {
+  
+  if (result.data.length === 0) {
     return {
       code: -1,
       message: '宝贝不存在',
       data: null
     }
   }
-
+  
   const child = result.data[0]
   
   // 验证权限

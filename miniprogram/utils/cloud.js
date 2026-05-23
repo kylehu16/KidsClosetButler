@@ -198,6 +198,41 @@ const statistics = {
   }
 }
 
+/**
+ * 推荐记录管理
+ */
+const recommendations = {
+  // 保存推荐记录
+  add(data) {
+    return callFunction('manageOutfits', { action: 'saveRecommendation', data })
+  },
+  
+  // 获取推荐记录
+  get(query = {}) {
+    return callFunction('manageOutfits', { action: 'getRecommendations', query })
+  }
+}
+
+/**
+ * AI推荐次数限制管理
+ */
+const aiUsage = {
+  // 检查并递增使用次数（事务原子操作）
+  checkAndIncrement(date) {
+    return callFunction('manageOutfits', { action: 'checkAndIncrementUsage', data: { date } })
+  },
+
+  // 同步本地计数到云端（取最大值）
+  syncUsage(date, localCount) {
+    return callFunction('manageOutfits', { action: 'syncUsage', data: { date, localCount } })
+  },
+
+  // 查询指定日期的使用次数
+  getUsage(date) {
+    return callFunction('manageOutfits', { action: 'getUsage', data: { date } })
+  }
+}
+
 module.exports = {
   callFunction,
   getPresetData,
@@ -206,5 +241,7 @@ module.exports = {
   outfits,
   tags,
   wearLogs,
-  statistics
+  statistics,
+  recommendations,
+  aiUsage  // AI推荐次数限制
 }

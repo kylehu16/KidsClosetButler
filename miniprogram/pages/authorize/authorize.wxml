@@ -1,0 +1,84 @@
+<!--pages/authorize/authorize.wxml-->
+<view class="authorize-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-content">
+      <text class="nav-title">授权引导</text>
+    </view>
+  </view>
+
+  <!-- 进度指示器 -->
+  <view class="progress-section" style="margin-top: {{statusBarHeight + 44}}px;">
+    <view class="progress-bar">
+      <view class="progress-step {{currentStep >= 1 ? 'active' : ''}}">
+        <view class="step-dot">1</view>
+        <text class="step-text">位置授权</text>
+      </view>
+      <view class="progress-line {{currentStep >= 2 ? 'active' : ''}}"></view>
+      <view class="progress-step {{currentStep >= 2 ? 'active' : ''}}">
+        <view class="step-dot">2</view>
+        <text class="step-text">个人信息</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤1：地理位置授权 -->
+  <view class="step-content" wx:if="{{currentStep === 1}}">
+    <view class="step-icon">📍</view>
+    <text class="step-title">获取您的城市</text>
+    <text class="step-desc">我们需要获取您的位置信息来提供当地天气和穿搭建议</text>
+    
+    <view class="auth-card">
+      <view class="auth-icon-wrapper">
+        <text class="auth-icon">🌤️</text>
+      </view>
+      <text class="auth-title">天气信息</text>
+      <text class="auth-desc">获取当前城市天气，为您提供精准的穿搭推荐</text>
+    </view>
+
+    <button class="btn-primary" bindtap="handleLocationAuth">
+      允许获取位置
+    </button>
+    
+    <text class="auth-tip">授权后，我们将获取您所在的城市名称</text>
+  </view>
+
+  <!-- 步骤2：用户信息设置 -->
+  <view class="step-content" wx:if="{{currentStep === 2}}">
+    <view class="step-icon">👤</view>
+    <text class="step-title">设置个人信息</text>
+    <text class="step-desc">设置您的头像和昵称，用于个人中心展示</text>
+    
+    <view class="user-info-card">
+      <!-- 头像选择 -->
+      <button class="avatar-wrapper" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/assets/icons/profile.png'}}" mode="aspectFill"></image>
+        <view class="avatar-edit">
+          <text class="edit-icon">📷</text>
+        </view>
+      </button>
+      <text class="avatar-tip">点击更换头像</text>
+      
+      <!-- 昵称输入 -->
+      <view class="nickname-wrapper">
+        <text class="input-label">昵称</text>
+        <input 
+          type="nickname" 
+          class="nickname-input" 
+          placeholder="请输入昵称" 
+          value="{{userInfo.nickName}}"
+          bindinput="onInputNickname"
+        />
+      </view>
+    </view>
+
+    <button class="btn-primary" bindtap="handleComplete">
+      完成设置
+    </button>
+  </view>
+
+  <!-- 授权失败提示 -->
+  <view class="error-toast" wx:if="{{showError}}">
+    <text class="error-text">{{errorMsg}}</text>
+  </view>
+</view>

@@ -12,7 +12,7 @@ Page({
       gender: '',
       season: [],
       size: '',
-      color: '',
+      color: [],  // 改为数组，支持多选
       tags: [],
       image: '',
       childId: ''
@@ -30,7 +30,8 @@ Page({
       { id: 'spring', name: '春' },
       { id: 'summer', name: '夏' },
       { id: 'autumn', name: '秋' },
-      { id: 'winter', name: '冬' }
+      { id: 'winter', name: '冬' },
+      { id: 'all', name: '四季' }
     ],
     colorOptions: [
       { id: 'red', value: '#EF4444', hex: 'EF4444' },
@@ -143,7 +144,12 @@ Page({
           String(c.id) === String(item.childId) || 
           String(c._id) === String(item.childId)
         )
-        const colorItem = this.data.colorOptions.find(c => c.id === item.color)
+        // 处理颜色（可能是字符串或数组）
+        let colors = item.color || []
+        if (typeof colors === 'string') {
+          colors = [colors]  // 兼容旧数据
+        }
+        const firstColorItem = colors.length > 0 ? this.data.colorOptions.find(c => c.id === colors[0]) : null
         
         // 根据衣物类别设置尺码选项和单位
         const isShoes = item.category === 'shoes'
@@ -173,13 +179,13 @@ Page({
             gender: item.gender || '',
             season: item.season || [],
             size: item.size || '',
-            color: item.color || '',
+            color: colors,  // 使用处理过的颜色数组
             tags: matchIds,
             image: item.image || '',
             childId: item.childId || ''
           },
           selectedChildName: child ? child.name : '',
-          selectedColorHex: colorItem ? colorItem.hex : '',
+          selectedColorHex: firstColorItem ? firstColorItem.hex : '',
           currentSizeOptions: targetSizeOptions,
           sizeUnit: sizeUnit,
           selectedSizeIndex: validIndex
@@ -291,8 +297,8 @@ Page({
         wx.hideLoading()
         console.error('上传失败:', err)
         wx.showToast({ title: '上传失败', icon: 'none' })
-        // 上传失败时，仍使用临时路径
-        this.setData({ 'formData.image': filePath })
+        // 上传失败时，不使用临时路径（临时路径无效）
+        // 用户需要重新上传
       }
     })
   },
@@ -348,16 +354,33 @@ Page({
 
   selectSeason(e) {
     const seasonId = e.currentTarget.dataset.id
-    const currentSeason = this.data.formData.season
-    let newSeason = []
+    let currentSeason = this.data.formData.season || []
+    
+    // 如果点击的是"四季"
+    if (seasonId === 'all') {
+      // 如果已经选中"四季"，则取消，变为空
+      if (currentSeason.length === 1 && currentSeason[0] === 'all') {
+        this.setData({ 'formData.season': [] })
+      } else {
+        // 否则选中"四季"，取消其他
+        this.setData({ 'formData.season': ['all'] })
+      }
+      return
+    }
+    
+    // 如果当前是 ['all']，先展开为四个季节
+    if (currentSeason.length === 1 && currentSeason[0] === 'all') {
+      currentSeason = []
+    }
     
     // 检查是否已选中
     let found = false
+    let newSeason = []
     for (let i = 0; i < currentSeason.length; i++) {
       if (currentSeason[i] === seasonId) {
-        found = true
+        found = true  // 找到就标记（不添加到newSeason，相当于删除）
       } else {
-        newSeason.push(currentSeason[i])
+        newSeason.push(currentSeason[i])  // 没找到就保留
       }
     }
     
@@ -366,7 +389,7 @@ Page({
       newSeason.push(seasonId)
     }
     
-    // 如果四个季节都选中了，存储为 'all'
+    // 如果四个季节都选中了，存储为 ['all']
     const allSeasons = ['spring', 'summer', 'autumn', 'winter']
     const hasAllSeasons = allSeasons.every(s => newSeason.includes(s))
     if (hasAllSeasons) {
@@ -378,10 +401,31 @@ Page({
 
   selectColor(e) {
     const colorId = e.currentTarget.dataset.id
+    const currentColors = this.data.formData.color || []
     const colorItem = this.data.colorOptions.find(c => c.id === colorId)
+    
+    // 检查是否已选中
+    let found = false
+    let newColors = []
+    for (let i = 0; i < currentColors.length; i++) {
+      if (currentColors[i] === colorId) {
+        found = true  // 找到就标记（不添加到newColors，相当于删除）
+      } else {
+        newColors.push(currentColors[i])  // 没找到就保留
+      }
+    }
+    
+    // 如果没找到就添加
+    if (!found) {
+      newColors.push(colorId)
+    }
+    
+    // 更新选中的颜色十六进制值（显示第一个选中的）
+    const firstColorItem = newColors.length > 0 ? this.data.colorOptions.find(c => c.id === newColors[0]) : null
+    
     this.setData({ 
-      'formData.color': colorId,
-      selectedColorHex: colorItem ? colorItem.hex : ''
+      'formData.color': newColors,
+      selectedColorHex: firstColorItem ? firstColorItem.hex : ''
     })
   },
 
@@ -548,7 +592,7 @@ Page({
           gender: '',
           season: [],
           size: '',
-          color: '',
+          color: [],  // 改为空数组
           tags: [],
           image: '',
           childId: firstChild ? (firstChild._id || firstChild.id) : ''

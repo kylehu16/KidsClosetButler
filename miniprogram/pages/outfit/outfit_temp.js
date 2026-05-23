@@ -1,4 +1,4 @@
-const cloud = require('../../utils/cloud')
+﻿const cloud = require('../../utils/cloud')
 const app = getApp()
 
 Page({
@@ -75,6 +75,16 @@ Page({
     }
   },
 
+  // 页面切走时保存推荐结果
+  onHide() {
+    const recommendedOutfit = this.data.recommendedOutfit || []
+    if (recommendedOutfit.length > 0) {
+      wx.setStorageSync('recommendedOutfit', recommendedOutfit)
+    } else {
+      wx.removeStorageSync('recommendedOutfit')
+    }
+  },
+
   // 加载所有标签（预设+自定义）
   async loadTags() {
     try {
@@ -107,6 +117,86 @@ Page({
 
   onShow() {
     this.loadData()
+  },
+
+  // 保存页面状态到本地存储
+  _savePageState() {
+    const {
+      selectedWeather, selectedTemp, selectedOccasion,
+      selectedWeatherName, selectedTempName, selectedOccasionName,
+      selectedChildIds, selectedChildName,
+      weatherCity,
+      recommendedOutfit,
+      weekOutfits
+    } = this.data
+
+    wx.setStorageSync(this._storageKey, {
+      selectedWeather,
+      selectedTemp,
+      selectedOccasion,
+      selectedWeatherName,
+      selectedTempName,
+      selectedOccasionName,
+      selectedChildIds,
+      selectedChildName,
+      weatherCity,
+      recommendedOutfit,
+      weekOutfits,
+      saveTime: Date.now()
+    })
+  },
+
+  // 从本地存储恢复页面状态
+  _restorePageState() {
+    try {
+      const saved = wx.getStorageSync(this._storageKey)
+      if (!saved) return
+
+      // 只恢复当天的数据（跨天不恢复）
+      const isToday = saved.saveTime && new Date(saved.saveTime).toDateString() === new Date().toDateString()
+      if (!isToday) {
+        wx.removeStorageSync(this._storageKey)
+        return
+      }
+
+      const updateData = {}
+
+      // 恢复天气、温度、场合
+      if (saved.selectedWeather) updateData.selectedWeather = saved.selectedWeather
+      if (saved.selectedTemp) updateData.selectedTemp = saved.selectedTemp
+      if (saved.selectedOccasion) updateData.selectedOccasion = saved.selectedOccasion
+      if (saved.selectedWeatherName) updateData.selectedWeatherName = saved.selectedWeatherName
+      if (saved.selectedTempName) updateData.selectedTempName = saved.selectedTempName
+      if (saved.selectedOccasionName) updateData.selectedOccasionName = saved.selectedOccasionName
+
+      // 恢复城市
+      if (saved.weatherCity) updateData.weatherCity = saved.weatherCity
+
+      // 恢复推荐结果
+      if (saved.recommendedOutfit && saved.recommendedOutfit.length > 0) {
+        updateData.recommendedOutfit = saved.recommendedOutfit
+      }
+
+      // 恢复未来天气信息
+      if (saved.weekOutfits && saved.weekOutfits.length > 0) {
+        updateData.weekOutfits = saved.weekOutfits
+      }
+      
+      // 恢复选中宝贝（需要校验宝贝仍在列表中）
+      if (saved.selectedChildIds && saved.selectedChildIds.length > 0) {
+        const childExists = this.data.children.some(c => saved.selectedChildIds.includes(c.id))
+        if (childExists) {
+          updateData.selectedChildIds = saved.selectedChildIds
+          if (saved.selectedChildName) updateData.selectedChildName = saved.selectedChildName
+        }
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        this.setData(updateData)
+      }
+    } catch (err) {
+      console.error('恢复页面状态失败:', err)
+    }
   },
 
   // 跳转到添加搭配页面
@@ -856,6 +946,7 @@ Page({
     const { selectedChildIds } = this.data
     if (selectedChildIds.length === 0) {
       this.setData({ recommendedOutfit: [] })
+      wx.removeStorageSync(this._storageKey)
       return
     }
     
@@ -1559,3 +1650,5 @@ Page({
     }
   }
 })
+
+

@@ -6,6 +6,20 @@ module.exports = {
       if (arr[i] === item) return true
     }
     return false
+  },
+  // 检查季节是否应该显示为选中状态
+  isSeasonActive: function(season, itemId) {
+    if (!season || season.length === 0) return false
+    // 如果是['all']，只有'all'选项显示选中
+    if (season.length === 1 && season[0] === 'all') {
+      return itemId === 'all'
+    }
+    // 否则检查当前选项是否在数组中（'all'选项不显示选中）
+    if (itemId === 'all') return false
+    for (var i = 0; i < season.length; i++) {
+      if (season[i] === itemId) return true
+    }
+    return false
   }
 }
 </wxs>
@@ -15,7 +29,7 @@ module.exports = {
     <view class="nav-back" bindtap="goBack">←</view>
     <view class="nav-title">{{isEdit ? '编辑衣物' : '添加衣物'}}</view>
   </view>
-  
+
   <view class="add-form">
     <!-- 衣物照片 -->
     <view class="form-section">
@@ -107,11 +121,11 @@ module.exports = {
         <view 
           wx:for="{{seasonOptions}}" 
           wx:key="id"
-          class="season-tag {{utils.inArray(formData.season, item.id) ? 'active' : ''}}"
+          class="season-tag {{utils.isSeasonActive(formData.season, item.id) ? 'active' : ''}}"
           data-id="{{item.id}}"
           bindtap="selectSeason"
         >
-          {{item.name}}{{utils.inArray(formData.season, item.id) ? '✓' : ''}}
+          {{item.name}}{{utils.isSeasonActive(formData.season, item.id) ? '✓' : ''}}
         </view>
       </view>
     </view>
@@ -137,22 +151,22 @@ module.exports = {
       </view>
     </view>
     
-    <!-- 颜色（保持不变） -->
+    <!-- 颜色（可多选） -->
     <view class="form-section">
-      <view class="form-label">主色调</view>
+      <view class="form-label">主色调（可多选）</view>
       <view class="color-picker-row">
         <view 
           wx:for="{{colorOptions}}" 
           wx:key="id"
-          class="color-item {{formData.color === item.id ? 'active' : ''}}"
+          class="color-item {{utils.inArray(formData.color, item.id) ? 'active' : ''}}"
           style="background: {{item.value}};"
           data-id="{{item.id}}"
           bindtap="selectColor"
         >
-          <view wx:if="{{formData.color === item.id}}" class="color-check">✓</view>
+          <view wx:if="{{utils.inArray(formData.color, item.id)}}" class="color-check">✓</view>
         </view>
       </view>
-      <view wx:if="{{selectedColorHex}}" class="color-hex">#{{selectedColorHex}}</view>
+      <view wx:if="{{formData.color.length > 0}}" class="color-hex">已选 {{formData.color.length}} 种颜色</view>
     </view>
     
     <!-- 标签 -->

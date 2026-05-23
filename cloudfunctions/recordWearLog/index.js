@@ -27,8 +27,6 @@ exports.main = async (event, context) => {
         return await getWearLogs(query, openId)
       case 'getByClothes':
         return await getWearLogsByClothes(query, openId)
-      case 'delete':
-        return await deleteWearLog(event.id, openId)
       default:
         return {
           code: -1,
@@ -56,22 +54,8 @@ async function addWearLog(data, openId) {
   
   const result = await db.collection('wear_logs').add(logData)
   
-  // 同时更新衣物的穿着次数（支持多个衣物）
-  if (data.items && data.items.length > 0) {
-    for (const itemId of data.items) {
-      try {
-        await db.collection('clothes')
-          .doc(itemId)
-          .update({
-            wearCount: db.command.inc(1),
-            updateTime: new Date().toISOString()
-          })
-      } catch (e) {
-        console.error('更新穿着次数失败:', e)
-      }
-    }
-  } else if (data.clothesId) {
-    // 兼容旧逻辑（单个衣物）
+  // 同时更新衣物的穿着次数
+  if (data.clothesId) {
     try {
       await db.collection('clothes')
         .doc(data.clothesId)
@@ -128,10 +112,9 @@ async function getWearLogs(query = {}, openId) {
     if (log.clothesId) {
       try {
         const clothesRes = await db.collection('clothes')
-          .where({ _id: log.clothesId })
+          .doc(log.clothesId)
           .get()
-        // where({ _id }).get() 始终返回 { data: [] }
-        log.clothesDetail = (clothesRes.data && clothesRes.data[0]) || null
+        log.clothesDetail = clothesRes.data[0] || null
       } catch (e) {
         log.clothesDetail = null
       }
@@ -167,74 +150,5 @@ async function getWearLogsByClothes(query = {}, openId) {
     code: 0,
     message: '获取成功',
     data: result.data
-  }
-}
-
-// 删除穿衣记录
-async function deleteWearLog(id, openId) {
-  if (!id) {
-    return {
-      code: -1,
-      message: '缺少记录ID',
-      data: null
-    }
-  }
-  
-  try {
-    // 先查询记录是否存在且属于当前用户
-    const result = await db.collection('wear_logs')
-      .where({ _id: id })
-      .get()
-
-    if (!result.data || result.data.length === 0) {
-      return {
-        code: -1,
-        message: '记录不存在',
-        data: null
-      }
-    }
-
-    const log = result.data[0]
-    
-    // 验证权限（只能删除自己的记录）
-    if (log._openid !== openId) {
-      return {
-        code: 403,
-        message: '无权限删除此记录',
-        data: null
-      }
-    }
-    
-    // 删除记录
-    await db.collection('wear_logs').doc(id).remove()
-    
-    // 可选：减少衣物的穿着次数
-    if (log.items && log.items.length > 0) {
-      for (const itemId of log.items) {
-        try {
-          await db.collection('clothes')
-            .doc(itemId)
-            .update({
-              wearCount: db.command.inc(-1),
-              updateTime: new Date().toISOString()
-            })
-        } catch (e) {
-          console.error('减少穿着次数失败:', e)
-        }
-      }
-    }
-    
-    return {
-      code: 0,
-      message: '删除成功',
-      data: null
-    }
-  } catch (error) {
-    console.error('删除记录失败:', error)
-    return {
-      code: -1,
-      message: error.message || '删除失败',
-      data: null
-    }
   }
 }

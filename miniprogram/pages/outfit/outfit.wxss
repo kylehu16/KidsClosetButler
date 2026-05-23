@@ -110,6 +110,21 @@
   border-radius: 20rpx;
 }
 
+.weather-city-container {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.weather-city-name {
+  font-size: 24rpx;
+  color: #6A7282;
+  max-width: 200rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .child-list {
   display: flex;
   gap: 16rpx;
@@ -262,20 +277,35 @@
   color: #101828;
 }
 
-.more-icon {
+.recommend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx;
+}
+
+.arrow-btn {
   width: 48rpx;
   height: 48rpx;
   background: #F3F4F6;
   border-radius: 50%;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 36rpx;
+  color: #101828;
+  font-weight: bold;
 }
 
-.more-icon::before {
-  content: '🔄';
+.arrow-btn:active {
+  background: #E5E7EB;
+  transform: scale(0.95);
+}
+
+.recommend-title {
   font-size: 28rpx;
+  font-weight: 600;
+  color: #101828;
 }
 
 .recommend-items {
@@ -344,6 +374,12 @@
   font-size: 24rpx;
   color: #6A7282;
   margin-top: 8rpx;
+}
+
+.tip-reason {
+  font-size: 26rpx;
+  color: #364153;
+  line-height: 1.6;
 }
 
 .save-outfit-btn {
@@ -1029,6 +1065,35 @@
   color: #FFFFFF;
 }
 
+/* ========== AI推荐按钮样式 ========== */
+.ai-recommend-btn {
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: 0 4rpx 20rpx rgba(251, 100, 182, 0.3);
+}
+
+.ai-recommend-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(251, 100, 182, 0.2);
+}
+
+.ai-icon {
+  font-size: 36rpx;
+}
+
+.ai-text {
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
 /* ========== 穿搭记录弹窗样式 ========== */
 .wear-modal {
   position: fixed;
@@ -1208,5 +1273,142 @@
 
 .delete-btn:active {
   background: #FEE2E2;
+  transform: scale(0.95);
+}
+
+/* ========= 天气获取弹窗样式 ========= */
+.weather-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.weather-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.weather-modal-content {
+  width: 80%;
+  max-width: 600rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+}
+
+.weather-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.weather-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #F9FAFB;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  border: 2rpx solid #E5E7EB;
+  transition: all 0.3s ease;
+}
+
+.weather-option:active {
+  background: #F0FDF4;
+  border-color: #00C950;
+  transform: scale(0.95);
+}
+
+.weather-option-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.weather-option-info {
+  flex: 1;
+}
+
+.weather-option-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #101828;
+}
+
+.weather-option-desc {
+  font-size: 24rpx;
+  color: #6A7282;
+  margin-top: 4rpx;
+}
+
+.city-input-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #E5E7EB;
+}
+
+.city-input-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #101828;
+  margin-bottom: 16rpx;
+}
+
+.city-input {
+  width: 100%;
+  height: 80rpx;
+  background: #F9FAFB;
+  border-radius: 16rpx;
+  border: 2rpx solid #E5E7EB;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #101828;
+  box-sizing: border-box;
+  margin-bottom: 24rpx;
+}
+
+.city-confirm-btn {
+  width: 100%;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #FB64B6 0%, #C27AFF 100%);
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(251, 100, 182, 0.3);
+}
+
+.city-confirm-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(251, 100, 182, 0.2);
+}
+
+.weather-modal-cancel {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  background: #F3F4F6;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #6A7282;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.weather-modal-cancel:active {
+  background: #E5E7EB;
   transform: scale(0.95);
 }

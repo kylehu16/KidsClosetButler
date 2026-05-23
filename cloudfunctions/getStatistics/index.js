@@ -146,10 +146,9 @@ async function getHotOutfits(openId) {
   for (const item of sorted) {
     try {
       const clothesRes = await db.collection('clothes')
-        .where({ _id: item.clothesId })
+        .doc(item.clothesId)
         .get()
-      // where({ _id }).get() 始终返回 { data: [] }
-      item.clothesDetail = (clothesRes.data && clothesRes.data[0]) || null
+      item.clothesDetail = clothesRes.data[0] || null
     } catch (e) {
       item.clothesDetail = null
     }

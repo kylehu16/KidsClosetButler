@@ -60,9 +60,12 @@ module.exports = {
       <view class="section">
         <view class="section-label-row">
           <view class="section-label">选择天气</view>
-          <view class="get-weather-btn" bindtap="getCurrentWeather">
-            <text wx:if="{{locationLoading}}">获取中...</text>
-            <text wx:else>📍 获取当前天气</text>
+          <view class="weather-city-container">
+            <view class="get-weather-btn" bindtap="showWeatherModal">
+              <text wx:if="{{locationLoading}}">获取中...</text>
+              <text wx:else>📍 获取天气</text>
+            </view>
+            <text wx:if="{{weatherCity}}" class="weather-city-name">{{weatherCity}}</text>
           </view>
         </view>
         <view class="weather-grid">
@@ -112,11 +115,18 @@ module.exports = {
         </view>
       </view>
 
+      <!-- AI推荐按钮 -->
+      <view class="ai-recommend-btn" bindtap="onAiRecommend">
+        <text class="ai-icon">🤖</text>
+        <text class="ai-text">AI推荐</text>
+      </view>
+
       <!-- 今日推荐穿搭 -->
       <view class="outfit-recommend card">
         <view class="recommend-header">
+          <view class="arrow-btn left-arrow" bindtap="onPrevRecommendation">‹</view>
           <text class="recommend-title">今日推荐穿搭</text>
-          <view class="more-icon" bindtap="regenerate"></view>
+          <view class="arrow-btn right-arrow" bindtap="onNextRecommendation">›</view>
         </view>
         <view class="recommend-items">
           <view 
@@ -133,26 +143,21 @@ module.exports = {
             <view class="recommend-name">{{item.name}}</view>
           </view>
         </view>
-        <view class="recommend-tip">
-          <text>💡 为 <text class="tip-highlight">{{selectedChildName}}</text> 推荐的穿搭</text>
-          <text class="tip-desc">适合{{selectedWeatherName}}天气，温度{{selectedTempName}}，{{selectedOccasionName}}场合穿着</text>
-        </view>
         <view class="save-outfit-btn" bindtap="saveOutfit">
           <text>保存这套搭配</text>
         </view>
       </view>
 
-      <!-- 未来天气与穿搭提醒 -->
+      <!-- 未来天气 -->
       <view class="section">
         <view class="section-title-row">
           <text class="section-icon">📅</text>
-          <text class="section-title-bold">未来天气与穿搭提醒</text>
+          <text class="section-title-bold">未来天气</text>
         </view>
         <view class="week-list">
           <view 
             wx:for="{{weekOutfits}}" 
             wx:key="day"
-            wx:if="{{index < 3}}"
             class="week-card card"
           >
             <view class="week-header">
@@ -165,7 +170,6 @@ module.exports = {
                 <text class="temp">{{item.tempRange}}</text>
               </view>
             </view>
-            <view class="week-suggest">{{item.suggest}}</view>
           </view>
         </view>
       </view>
@@ -372,6 +376,43 @@ module.exports = {
         <view class="wear-btn-cancel" bindtap="hideWearModal">取消</view>
         <view class="wear-btn-confirm" bindtap="confirmWear">确定</view>
       </view>
+    </view>
+  </view>
+
+  <!-- 天气获取方式选择弹窗 -->
+  <view class="weather-modal {{showWeatherModal ? 'show' : ''}}" bindtap="hideWeatherModal">
+    <view class="weather-modal-content" catchtap="stopPropagation">
+      <view class="weather-modal-title">获取天气</view>
+      
+      <view class="weather-option" bindtap="getWeatherByLocation">
+        <view class="weather-option-icon">📍</view>
+        <view class="weather-option-info">
+          <view class="weather-option-title">根据当前位置</view>
+          <view class="weather-option-desc">使用您的位置信息获取当地天气</view>
+        </view>
+      </view>
+      
+      <view class="weather-option" bindtap="showCityInput">
+        <view class="weather-option-icon">🏙️</view>
+        <view class="weather-option-info">
+          <view class="weather-option-title">选择城市</view>
+          <view class="weather-option-desc">手动输入城市名称</view>
+        </view>
+      </view>
+      
+      <!-- 城市输入区域 -->
+      <view class="city-input-section" wx:if="{{showCityInputSection}}">
+        <view class="city-input-label">输入城市名称</view>
+        <input 
+          class="city-input" 
+          placeholder="例如：北京、上海、深圳" 
+          value="{{cityName}}"
+          bindinput="onCityNameInput"
+        />
+        <view class="city-confirm-btn" bindtap="getWeatherByCity">确定</view>
+      </view>
+      
+      <view class="weather-modal-cancel" bindtap="hideWeatherModal">取消</view>
     </view>
   </view>
 

@@ -186,6 +186,7 @@ async function getClothes(query = {}, openId) {
   }
   
   const result = await dbQuery
+    .orderBy('_id', 'asc')
     .orderBy('createTime', 'desc')
     .get()
   

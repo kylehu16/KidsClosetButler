@@ -1,0 +1,82 @@
+<view class="detail-page">
+  <view class="nav-bar gradient-bg">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <view class="nav-title">衣物详情</view>
+  </view>
+
+  <scroll-view class="detail-content" scroll-y wx:if="{{clothes}}">
+    <!-- 衣物图片 -->
+    <view class="image-section" bindtap="previewImage">
+      <image wx:if="{{clothes.image}}" src="{{clothes.image}}" mode="aspectFill" class="clothes-image"/>
+      <view wx:else class="image-placeholder">
+        <text class="placeholder-text">{{clothes.name[0]}}</text>
+      </view>
+    </view>
+
+    <!-- 衣物信息 -->
+    <view class="info-section card">
+      <view class="info-header">
+        <text class="clothes-name">{{clothes.name}}</text>
+        <text class="wear-count">已穿 {{clothes.wearCount || 0}} 次</text>
+      </view>
+
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="info-label">类别</text>
+          <text class="info-value">{{categoryMap[clothes.category] || clothes.category}}</text>
+        </view>
+
+        <view class="info-item">
+          <text class="info-label">适合性别</text>
+          <text class="info-value">{{clothes.gender === 'boy' ? '男宝' : '女宝'}}</text>
+        </view>
+
+        <view class="info-item">
+          <text class="info-label">适合季节</text>
+          <text class="info-value">{{clothes.seasonText}}</text>
+        </view>
+
+        <view class="info-item">
+          <text class="info-label">尺码</text>
+          <text class="info-value">{{clothes.size}}{{clothes.sizeUnit}}</text>
+        </view>
+
+        <view class="info-item">
+          <text class="info-label">颜色</text>
+          <view class="color-display">
+            <view class="color-dot" style="background-color: {{colorMap[clothes.color] || clothes.color}}"></view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 标签 -->
+      <view class="tags-section" wx:if="{{clothes.tagNames && clothes.tagNames.length > 0}}">
+        <text class="info-label">标签</text>
+        <view class="tags-list">
+          <text wx:for="{{clothes.tagNames}}" wx:key="*this" class="tag tag-purple">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 创建时间 -->
+      <view class="time-section">
+        <text class="info-label">添加时间</text>
+        <text class="info-value">{{clothes.createTime}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section">
+      <view class="action-btn edit-action" bindtap="onEdit">
+        <text>✏️ 修改</text>
+      </view>
+      <view class="action-btn delete-action" bindtap="onDelete">
+        <text>🗑️ 删除</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty-state">
+    <text class="empty-text">加载中...</text>
+  </view>
+</view>

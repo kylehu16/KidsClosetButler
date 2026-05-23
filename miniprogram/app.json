@@ -3,6 +3,7 @@
     "pages/wardrobe/wardrobe",
     "pages/outfit/outfit",
     "pages/outfit-detail/outfit-detail",
+    "pages/clothes-detail/clothes-detail",
     "pages/add/add",
     "pages/add-outfit/add-outfit",
     "pages/statistics/statistics",

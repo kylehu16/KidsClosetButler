@@ -119,16 +119,16 @@ async function addTag(data, openId) {
 // 更新标签
 async function updateTag(id, data, openId) {
   // 检查是否是预设标签
-  const result = await db.collection('tags').where({ _id: id }).get()
-
-  if (!result.data || result.data.length === 0) {
+  const result = await db.collection('tags').doc(id).get()
+  
+  if (result.data.length === 0) {
     return {
       code: -1,
       message: '标签不存在',
       data: null
     }
   }
-
+  
   const tag = result.data[0]
   
   // 预设标签不允许修改
@@ -166,16 +166,16 @@ async function updateTag(id, data, openId) {
 // 删除标签（软删除）
 async function deleteTag(id, openId) {
   // 检查是否是预设标签
-  const result = await db.collection('tags').where({ _id: id }).get()
-
-  if (!result.data || result.data.length === 0) {
+  const result = await db.collection('tags').doc(id).get()
+  
+  if (result.data.length === 0) {
     return {
       code: -1,
       message: '标签不存在',
       data: null
     }
   }
-
+  
   const tag = result.data[0]
   
   // 预设标签不允许删除

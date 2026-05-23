@@ -34,6 +34,16 @@ exports.main = async (event, context) => {
         return await getOutfitById(id, openId)
       case 'recommend':
         return await recommendOutfit(data, openId)
+      case 'saveRecommendation':
+        return await saveRecommendation(data, openId)
+      case 'getRecommendations':
+        return await getRecommendations(query, openId)
+      case 'checkAndIncrementUsage':
+        return await checkAndIncrementUsage(data, openId)
+      case 'syncUsage':
+        return await syncUsage(data, openId)
+      case 'getUsage':
+        return await getUsage(data, openId)
       default:
         return {
           code: -1,
@@ -163,6 +173,7 @@ async function getOutfits(query = {}, openId) {
   }
   
   const result = await dbQuery
+    .orderBy('_id', 'asc')
     .orderBy('date', 'desc')
     .get()
   
@@ -281,5 +292,171 @@ async function recommendOutfit(data, openId) {
     code: 0,
     message: '推荐成功',
     data: recommendation
+  }
+}
+
+// 保存推荐结果
+async function saveRecommendation(data, openId) {
+  const recommendationData = {
+    ...data,
+    _openid: openId,
+    createTime: new Date().toISOString()
+  }
+  
+  const result = await db.collection('recommendations').add(recommendationData)  
+  return {
+    code: 0,
+    message: '保存成功',
+    data: {
+      id: result.id,
+      ...recommendationData
+    }
+  }
+}
+
+// 获取推荐记录
+async function getRecommendations(query, openId) {
+  let dbQuery = db.collection('recommendations').where({ _openid: openId })
+  
+  if (query.queryHash) {
+    dbQuery = dbQuery.where({ queryHash: query.queryHash })
+  }
+  
+  const result = await dbQuery.get()
+  
+  return {
+    code: 0,
+    message: '获取成功',
+    data: result.data
+  }
+}
+
+// 检查并递增AI推荐次数（事务原子操作）
+async function checkAndIncrementUsage(data, openId) {
+  const { date } = data
+  const maxCount = 10
+
+  try {
+    const result = await db.runTransaction(async (transaction) => {
+      const res = await transaction.collection('ai_usage').where({
+        _openid: openId,
+        date: date
+      }).get()
+
+      if (res.data.length === 0) {
+        // 今日无记录，创建新记录
+        await transaction.collection('ai_usage').add({
+          _openid: openId,
+          date: date,
+          count: 1,
+          createTime: new Date().toISOString(),
+          updateTime: new Date().toISOString()
+        })
+        return { allowed: true, count: 1 }
+      } else {
+        // 今日有记录，检查是否超限
+        const doc = res.data[0]
+        if (doc.count >= maxCount) {
+          return { allowed: false, count: doc.count }
+        }
+        // 未超限，递增
+        await transaction.collection('ai_usage').doc(doc._id).update({
+          count: doc.count + 1,
+          updateTime: new Date().toISOString()
+        })
+        return { allowed: true, count: doc.count + 1 }
+      }
+    })
+
+    // 确保返回标准格式 { code: 0, data: {...} }
+    return {
+      code: 0,
+      data: result
+    }
+  } catch (error) {
+    console.error('检查并递增使用次数失败:', error)
+    return {
+      code: -1,
+      message: error.message || '操作失败',
+      data: null
+    }
+  }
+}
+
+// 同步本地计数到云端（取最大值）
+async function syncUsage(data, openId) {
+  const { date, localCount } = data
+
+  try {
+    const result = await db.runTransaction(async (transaction) => {
+      const res = await transaction.collection('ai_usage').where({
+        _openid: openId,
+        date: date
+      }).get()
+
+      if (res.data.length === 0) {
+        // 云端无记录，直接用本地计数创建
+        await transaction.collection('ai_usage').add({
+          _openid: openId,
+          date: date,
+          count: localCount,
+          createTime: new Date().toISOString(),
+          updateTime: new Date().toISOString()
+        })
+        return { count: localCount }
+      } else {
+        // 云端有记录，取最大值
+        const doc = res.data[0]
+        const maxCount = Math.max(doc.count, localCount)
+        await transaction.collection('ai_usage').doc(doc._id).update({
+          count: maxCount,
+          updateTime: new Date().toISOString()
+        })
+        return { count: maxCount }
+      }
+    })
+
+    return {
+      code: 0,
+      data: result
+    }
+  } catch (error) {
+    console.error('同步使用次数失败:', error)
+    return {
+      code: -1,
+      message: error.message || '操作失败',
+      data: null
+    }
+  }
+}
+
+// 查询指定日期的AI推荐次数
+async function getUsage(data, openId) {
+  const { date } = data
+
+  try {
+    const res = await db.collection('ai_usage').where({
+      _openid: openId,
+      date: date
+    }).get()
+
+    if (res.data.length === 0) {
+      return {
+        code: 0,
+        data: { count: 0 }
+      }
+    }
+
+    return {
+      code: 0,
+      data: { count: res.data[0].count }
+    }
+  } catch (error) {
+    console.error('查询使用次数失败:', error)
+    return {
+      code: -1,
+      message: error.message || '操作失败',
+      data: null
+    }
   }
 }

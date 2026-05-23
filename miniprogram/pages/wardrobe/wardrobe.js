@@ -68,10 +68,56 @@ Page({
       }, () => {
         // setData 完成后调用 filterByCategory
         this.filterByCategory()
+        // 获取图片临时URL
+        this.loadImageUrls(processedClothes)
       })
     } catch (err) {
       console.error('加载数据失败:', err)
       wx.showToast({ title: '加载失败', icon: 'none' })
+    }
+  },
+
+  // 获取图片临时URL（解决 cloud:// 协议图片不显示的问题）
+  async loadImageUrls(clothesList) {
+    try {
+      // 筛选出有图片且是云文件ID的衣物
+      const fileIdMap = {}  // { fileID: index }
+      const fileIds = []
+      
+      clothesList.forEach((item, index) => {
+        if (item.image && item.image.startsWith('cloud://')) {
+          fileIds.push(item.image)
+          fileIdMap[item.image] = index
+        }
+      })
+      
+      if (fileIds.length === 0) return
+      
+      // 批量获取临时URL（每次最多100个）
+      const result = await wx.cloud.getTempFileURL({
+        fileList: fileIds
+      })
+      
+      // 更新图片URL
+      const updatedClothes = this.data.clothes.map(item => ({ ...item }))
+      result.fileList.forEach(file => {
+        if (file.status === 'ok' && file.tempFileURL) {
+          const index = fileIdMap[file.fileID]
+          if (index !== undefined) {
+            updatedClothes[index].image = file.tempFileURL
+          }
+        }
+      })
+      
+      // 更新数据
+      this.setData({
+        clothes: updatedClothes,
+        filteredClothes: this.data.selectedCategory === 'all' 
+          ? updatedClothes 
+          : updatedClothes.filter(c => c.category === this.data.selectedCategory)
+      })
+    } catch (err) {
+      console.error('获取图片临时URL失败:', err)
     }
   },
   
@@ -95,7 +141,7 @@ Page({
   goToDetail(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/add/add?id=${id}`
+      url: `/pages/clothes-detail/clothes-detail?id=${id}`
     })
   },
 
