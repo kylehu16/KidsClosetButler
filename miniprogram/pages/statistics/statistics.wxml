@@ -53,10 +53,12 @@
   <view class="section">
     <view class="section-title">热门榜单 TOP10</view>
     <view class="ranking-list">
-      <view 
+        <view 
         wx:for="{{pagedHotList}}" 
         wx:key="_id"
         class="ranking-item card"
+        data-id="{{item._id}}"
+        bindtap="goToClothesDetail"
       >
         <view class="rank-num {{item.rankIndex === 1 ? 'gold' : item.rankIndex === 2 ? 'silver' : item.rankIndex === 3 ? 'bronze' : 'normal'}}">{{item.rankIndex}}</view>
         <view class="rank-img">
@@ -93,6 +95,8 @@
         wx:for="{{pagedColdList}}" 
         wx:key="_id"
         class="sleepy-card card"
+        data-id="{{item._id}}"
+        bindtap="goToClothesDetail"
       >
         <view class="sleepy-img">
           <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/>
@@ -127,6 +131,8 @@
         wx:for="{{pagedOutfitHotList}}" 
         wx:key="_id"
         class="ranking-item card"
+        data-id="{{item._id}}"
+        bindtap="goToOutfitDetail"
       >
         <view class="outfit-clothes-row">
           <view wx:for="{{item.items}}" wx:for-item="c" wx:key="_id" class="outfit-clothes-thumb">

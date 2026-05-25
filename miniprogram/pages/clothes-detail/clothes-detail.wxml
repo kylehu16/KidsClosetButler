@@ -60,7 +60,7 @@
       <!-- 创建时间 -->
       <view class="time-section">
         <text class="info-label">添加时间</text>
-        <text class="info-value">{{clothes.createTime}}</text>
+        <text class="info-value">{{clothes.createTimeFormatted}}</text>
       </view>
     </view>
 

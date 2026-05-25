@@ -131,11 +131,7 @@ const outfits = {
   delete(id) {
     return callFunction('manageOutfits', { action: 'delete', id })
   },
-  
-  // AI推荐穿搭
-  recommend(data) {
-    return callFunction('manageOutfits', { action: 'recommend', data })
-  }
+
 }
 
 /**

@@ -32,8 +32,6 @@ exports.main = async (event, context) => {
         return await getOutfits(query, openId)
       case 'getById':
         return await getOutfitById(id, openId)
-      case 'recommend':
-        return await recommendOutfit(data, openId)
       case 'saveRecommendation':
         return await saveRecommendation(data, openId)
       case 'getRecommendations':
@@ -242,56 +240,6 @@ async function getOutfitById(id, openId) {
     code: 0,
     message: '获取成功',
     data: outfit
-  }
-}
-
-// AI推荐穿搭（简化版，基于规则）
-async function recommendOutfit(data, openId) {
-  const { childId, weather, temperature, occasion } = data
-  
-  // 获取该宝贝的衣物
-  let clothesQuery = db.collection('clothes').where({ 
-    _openid: openId,
-    childId: childId 
-  })
-  
-  // 根据天气和温度筛选合适的衣物
-  if (weather === 'rainy' || weather === 'snowy') {
-    // 雨天/雪天推荐外套
-    clothesQuery = clothesQuery.where({ category: 'jacket' })
-  }
-  
-  const clothesRes = await clothesQuery.get()
-  const clothes = clothesRes.data
-  
-  // 简单推荐逻辑：根据类别分组，每组随机选择一件
-  const categorized = {
-    top: clothes.filter(c => c.category === 'top'),
-    pants: clothes.filter(c => c.category === 'pants' || c.category === 'skirt'),
-    jacket: clothes.filter(c => c.category === 'jacket'),
-    shoes: clothes.filter(c => c.category === 'shoes')
-  }
-  
-  const recommendation = []
-  if (categorized.top.length > 0) {
-    recommendation.push(categorized.top[Math.floor(Math.random() * categorized.top.length)])
-  }
-  if (categorized.pants.length > 0) {
-    recommendation.push(categorized.pants[Math.floor(Math.random() * categorized.pants.length)])
-  }
-  if (categorized.shoes.length > 0) {
-    recommendation.push(categorized.shoes[Math.floor(Math.random() * categorized.shoes.length)])
-  }
-  
-  // 根据天气决定是否推荐外套
-  if ((weather === 'rainy' || weather === 'snowy' || weather === 'windy') && categorized.jacket.length > 0) {
-    recommendation.push(categorized.jacket[Math.floor(Math.random() * categorized.jacket.length)])
-  }
-  
-  return {
-    code: 0,
-    message: '推荐成功',
-    data: recommendation
   }
 }
 

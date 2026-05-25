@@ -1,6 +1,9 @@
 const cloud = require('../../utils/cloud')
 const app = getApp()
 
+// 穿搭去重开关：启用后同服饰类型只保留一件（如两件短袖T恤只会留一件）
+const ENABLE_OUTFIT_DEDUP = false
+
 Page({
   data: {
     modeTab: 0,
@@ -852,46 +855,6 @@ Page({
     })
   },
 
-  async generateRecommendation() {
-    const { selectedChildIds } = this.data
-    if (selectedChildIds.length === 0) {
-      this.setData({ recommendedOutfit: [] })
-      return
-    }
-    
-    this.setData({ recommendLoading: true })
-    
-    try {
-      const result = await cloud.outfits.recommend({
-        childId: selectedChildIds[0],
-        weather: this.data.selectedWeather,
-        temperature: this.data.selectedTemp
-      })
-      
-      this.setData({ 
-        recommendedOutfit: result || [],
-        recommendLoading: false 
-      })
-    } catch (err) {
-      console.error('推荐失败:', err)
-      this.setData({ recommendLoading: false })
-      
-      // 降级方案：从本地列表随机选择
-      const clothes = this.data.clothesList || []
-      const tops = clothes.filter(c => c.category === 'top')
-      const pants = clothes.filter(c => c.category === 'pants' || c.category === 'skirt')
-      
-      const recommendation = []
-      if (tops.length > 0) recommendation.push(tops[Math.floor(Math.random() * tops.length)])
-      if (pants.length > 0) recommendation.push(pants[Math.floor(Math.random() * pants.length)])
-      
-      this.setData({ 
-        recommendedOutfit: recommendation,
-        recommendLoading: false 
-      })
-    }
-  },
-
   // 上一个推荐（左方向键）
   onPrevRecommendation() {
     const { cachedRecommendations, currentRank } = this.data
@@ -979,6 +942,48 @@ Page({
         currentRank: rank
       })
     }
+  },
+
+  // 从衣物名称中提取服饰类型（如"米灰拼布马短袖t恤" → "短袖t恤"）
+  extractGarmentType(name) {
+    const typePatterns = [
+      '短袖t恤', '长袖t恤', '短袖T恤', '长袖T恤',
+      'polo衫', 'POLO衫', 'Polo衫',
+      '衬衫', '卫衣', '毛衣', '背心', '马甲', '棉衣', '羽绒服',
+      '运动衫', '打底衫', '针织衫', '开衫',
+      '短裤', '长裤', '牛仔裤', '运动裤', '打底裤', '棉毛裤', '休闲裤',
+      '连衣裙', '半身裙', '短裙', '长裙', '百褶裙',
+      '外套', '夹克', '风衣', '大衣',
+      '运动鞋', '皮鞋', '凉鞋', '靴子', '帆布鞋',
+      't恤', 'T恤'
+    ]
+    const lower = name.toLowerCase()
+    for (const pattern of typePatterns) {
+      if (lower.includes(pattern.toLowerCase())) return pattern.toLowerCase()
+    }
+    return name
+  },
+
+
+  // 去重：同套穿搭中，同服饰类型只保留一件
+  deduplicateRecommendations(recommendations, clothes) {
+    if (!ENABLE_OUTFIT_DEDUP) return
+    if (!recommendations || !clothes || !clothes.length) return
+    recommendations.forEach(rec => {
+      if (!rec.items || rec.items.length <= 1) return
+      const seenTypes = {}
+      rec.items = rec.items.filter(clothesId => {
+        const item = clothes.find(c => c._id === clothesId)
+        if (!item) return false
+        const type = this.extractGarmentType(item.name)
+        if (seenTypes[type]) {
+          console.warn(`[去重] rank=${rec.rank} 移除重复类型"${type}": ${item.name}`)
+          return false
+        }
+        seenTypes[type] = true
+        return true
+      })
+    })
   },
 
   async loadClothesData() {
@@ -1077,18 +1082,38 @@ Page({
   // 调用混元大模型
   async callHunyuanAI(prompt) {
     try {
-      const systemPrompt = `你是儿童穿搭顾问，擅长根据天气、场合和衣物库存给出合适的穿搭建议。规则：
-1. 优先用已保存穿搭方案，否则从库存组新穿搭
-2. 分析穿搭记录了解用户偏好（颜色、款式、类别）
-3. 按优先级排序，rank=1最推荐，rank唯一不可重复，最多20套
-4. 每套须含上衣+裤/裙（二选一），外套和鞋子可选
-5. 各rank搭配方案不可重复
-6. 衣物尺码匹配儿童身高(±10cm)/脚长(±10mm)
-7. 已保存穿搭含衣物ID，可在衣物库存中找到对应的衣物详细信息（如类别、尺码、季节等），以判断是否适配当前的天气、场合和儿童尺码
-8. 仅输出纯JSON
+      const systemPrompt = `你是儿童穿搭顾问。输出前必须先思考：①分析天气温度→判断适合季节 ②分析场合→确定风格 ③从库存筛选合适衣物 ④按规则组合方案 ⑤检查是否违反规则 ⑥输出JSON。
 
-输出JSON格式：
-{"recommendation": [{"rank": 1, "outfitId": "穿搭ID", "items": []}, {"rank": 2, "outfitId": "", "items": ["衣物ID1", "衣物ID2"]}]}`
+【规则】
+1. 优先用已保存穿搭(outfitId不为空)，否则用items组新穿搭
+2. 分析穿搭记录了解用户偏好
+3. rank=1最推荐，rank唯一不重复，最多20套
+4. 每套搭配衣物约束：
+   - 上衣(top)：1-2件，可叠穿，但禁止同类型（如两件短袖T恤）
+   - 下装：1-2条裤子(pants)，或1条裙子(skirt)；裤子与裙子不能同时出现；裤子可叠穿但禁止同类型
+   - 外套(jacket)：0-1件
+   - 鞋子(shoes)：0-1件
+5. 不同rank的衣物组合必须实质不同（仅换顺序或换rank视为重复）
+6. 尺码匹配身高(±10cm)/脚长(±10mm)
+7. 天气适配：晴天→春夏装；雨天/下雪→秋冬装+外套；大风→必须配外套
+8. 场合适配：正式→避免运动标签；运动→避免裙子
+9. 仅输出纯JSON，不要任何额外文字
+
+【建议搭配参考（仅展示衣物名称，实际输出请用衣物ID）】
+春季15-20°C：长袖T恤、薄外套、牛仔裤、运动鞋
+夏季25-35°C：短袖T恤、短裤、凉鞋
+秋季15-25°C：长袖衬衫、休闲裤、帆布鞋
+冬季0-10°C：打底衫、毛衣、棉毛裤、外裤、羽绒服、靴子
+
+【错误示例（严禁输出）】
+❌ 短袖T恤A、短袖T恤B、牛仔裤 ← 两件同类型上衣
+✅ 短袖T恤A、牛仔裤
+❌ 长裤A、长裤B、上衣 ← 两件同类型裤子
+✅ 棉毛裤、外裤、上衣 ← 不同类型可叠穿
+
+【输出格式】
+{"recommendation":[{"rank":1,"outfitId":"已有穿搭ID","items":[]},{"rank":2,"outfitId":"","items":["衣物ID1","衣物ID2"]}]}
+注意：outfitId不为空时items必须为空，outfitId为空时items必须有衣物ID}`
       const provider = wx.cloud.extend.AI.createModel("hunyuan-v3")
       const res = await provider.generateText({
         model: "hy3-preview",
@@ -1117,54 +1142,54 @@ Page({
   // 构造AI调用的prompt
   buildPrompt(child, clothes, savedOutfits, weather, occasion, wearRecords) {
     let prompt = ""
-    
-    // 儿童信息（包含身高和脚长，含尺码容差）
-    prompt += "儿童信息：性别：" + (child.gender === 1 || child.gender === 'boy' ? '男' : '女')
-    prompt += "，身高 " + (child.height || '未知') + "cm（衣物尺码允许正负10cm偏差）"
-    prompt += "，脚长 " + (child.footLength || '未知') + "mm（鞋子尺码允许正负10mm偏差）\n\n"
-    
-    // 天气信息
+
+    // 任务指令（引导模型先思考）
+    prompt += "请根据以下信息，为儿童生成穿搭推荐。输出前请先思考：①当前温度对应什么季节，应该选什么厚薄的衣物 ②场合需要什么风格 ③从库存中筛选尺码合适的衣物 ④组合成完整搭配（至少2件，含上装+下装） ⑤检查是否违反规则。\n\n"
+
+    // 儿童信息
+    prompt += "【儿童信息】\n"
+    prompt += "性别：" + (child.gender === 1 || child.gender === 'boy' ? '男' : '女')
+    prompt += "，身高：" + (child.height || '未知') + "cm"
+    prompt += "，脚长：" + (child.footLength || '未知') + "mm\n\n"
+
+    // 天气和场合
     const weatherMap = { 'sunny': '晴天', 'cloudy': '多云', 'rainy': '雨天', 'snowy': '下雪', 'windy': '大风', 'foggy': '雾霾' }
-    prompt += "当前天气：" + (weatherMap[weather] || '晴天') + "，" + (this.data.selectedTempName || '20-25°C') + "\n\n"
-    
-    // 场合
     const occasionMap = { 'daily': '日常', 'casual': '休闲', 'formal': '正式', 'sports': '运动' }
+    prompt += "【当前条件】\n"
+    prompt += "天气：" + (weatherMap[weather] || '晴天') + "，" + (this.data.selectedTempName || '20-25°C') + "\n"
     prompt += "场合：" + (occasionMap[occasion] || '日常') + "\n\n"
-    
-    // 已保存的穿搭方案（包含ID、衣物ID列表，AI会去衣物库存查找详细信息）
+
+    // 已保存的穿搭方案（简洁展示）
     if (savedOutfits && savedOutfits.length > 0) {
-      prompt += "已保存的穿搭方案（包含ID，优先推荐）：\n"
+      prompt += "【已保存穿搭（优先推荐）】\n"
       savedOutfits.forEach((outfit, index) => {
-        // 只显示衣物ID列表，AI会根据ID去衣物库存中查找详细信息
         const itemIds = outfit.items ? outfit.items.map(i => i._id).join(', ') : '无'
-        const tags = outfit.tagNames ? outfit.tagNames.join('/') : '无'
-        prompt += (index + 1) + ". ID: " + outfit.id + ", 名称: " + (outfit.name || '未命名') + "，衣物ID列表: [" + itemIds + "]，标签: " + tags + "\n"
+        prompt += (index + 1) + ". ID:" + outfit.id + "，衣物ID:[" + itemIds + "]\n"
       })
       prompt += "\n"
     }
-    
-    // 最近穿搭记录（分析用户喜好）
+
+    // 最近穿搭记录（只取5条，节省token）
     if (wearRecords && wearRecords.length > 0) {
-      prompt += "最近穿搭记录（请分析用户的穿搭喜好，如喜欢的颜色、款式、类别等）：\n"
-      wearRecords.slice(0, 10).forEach(record => {
+      prompt += "【最近穿搭记录（参考偏好）】\n"
+      wearRecords.slice(0, 5).forEach(record => {
         const itemNames = record.itemDetails ? record.itemDetails.map(i => i.name).join(' + ') : '未知'
-        prompt += "- " + record.date + ": " + itemNames + "\n"
+        prompt += "- " + record.date + "：" + itemNames + "\n"
       })
       prompt += "\n"
     }
-    
-    // 衣物库存
+
+    // 衣物库存（精简：去掉颜色、性别等冗余信息）
     if (clothes && clothes.length > 0) {
-      prompt += "衣物库存（共" + clothes.length + "件），请优先选择尺码合适的衣物：\n"
+      prompt += "【衣物库存，共" + clothes.length + "件】\n"
       clothes.forEach((c, index) => {
-        const tags = c.tags ? c.tags.join('/') : ''
-        const sizeInfo = c.category === 'shoes' ? `，尺码: ${c.size}（适合脚长${child.footLength || '未知'}mm）` : `，尺码: ${c.size}`
-        const colorStr = (c.color && c.color.length) ? `，颜色: ${c.color.join('/')}` : ''
-        prompt += (index + 1) + ". ID: " + c._id + ", 名称: " + c.name + ", 类别: " + this.getCategoryName(c.category) + ", 季节: " + this.getSeasonName(c.season) + colorStr + "，适合性别: " + this.getGenderName(c.gender) + "，标签: " + tags + sizeInfo + "\n"
+        const sizeInfo = c.category === 'shoes' ? `尺码:${c.size}` : `尺码:${c.size}`
+        const tags = c.tags && c.tags.length ? ` [${c.tags.join('/')}]` : ''
+        prompt += (index + 1) + ". ID:" + c._id + "，" + c.name + "，" + this.getSeasonName(c.season) + "，" + sizeInfo + tags + "\n"
       })
       prompt += "\n"
     }
-    
+
     return prompt
   },
 
@@ -1250,6 +1275,9 @@ Page({
         // 使用缓存结果
         const recommendation = cachedResult.recommendations || []
         
+        // 缓存结果也去重
+        this.deduplicateRecommendations(recommendation, clothes)
+        
         // 处理推荐结果（显示排名第一的推荐）
         const topRecommendation = recommendation.find(item => item.rank === 1)
         if (topRecommendation) {
@@ -1279,7 +1307,10 @@ Page({
         
       // 按rank排序
       recommendation.sort((a, b) => (a.rank || 999) - (b.rank || 999))
-        
+      
+      // 去重：同套穿搭中，同服饰类型只保留一件
+      this.deduplicateRecommendations(recommendation, clothes)
+      
       // 处理推荐结果（显示排名第一的推荐）
       const topRecommendation = recommendation.find(item => item.rank === 1)
       let recommendedOutfit = []

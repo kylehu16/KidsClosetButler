@@ -37,6 +37,28 @@ Page({
     tagMap: {}
   },
 
+  // 格式化时间函数：将时间转换为 yyyy-mm-dd hh:mm 格式
+  formatDateTime(dateTime) {
+    if (!dateTime) return ''
+    
+    try {
+      const date = new Date(dateTime)
+      
+      // 获取年月日时分
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      
+      // 返回格式化后的字符串
+      return `${year}-${month}-${day} ${hours}:${minutes}`
+    } catch (err) {
+      console.error('格式化时间失败:', err)
+      return dateTime
+    }
+  },
+
   onLoad(options) {
     if (options.id) {
       this.setData({ clothesId: options.id })
@@ -85,12 +107,16 @@ Page({
       // 处理尺码单位
       const sizeUnit = clothes.category === 'shoes' ? 'mm' : 'cm'
 
+      // 格式化创建时间
+      const createTimeFormatted = this.formatDateTime(clothes.createTime)
+
       this.setData({
         clothes: {
           ...clothes,
           seasonText,
           tagNames,
-          sizeUnit
+          sizeUnit,
+          createTimeFormatted
         },
         tagMap
       })

@@ -236,5 +236,23 @@ Page({
       outfitCurrentPage: newPage,
       pagedOutfitHotList
     })
+  },
+
+  // 跳转到衣物详情页
+  goToClothesDetail(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/clothes-detail/clothes-detail?id=${id}`
+    })
+  },
+
+  // 跳转到穿搭详情页
+  goToOutfitDetail(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/outfit-detail/outfit-detail?outfitId=${id}`
+    })
   }
 })

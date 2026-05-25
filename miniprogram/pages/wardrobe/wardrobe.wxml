@@ -36,10 +36,29 @@
     <text class="add-btn-text">添加衣物</text>
   </view>
   
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input 
+        class="search-input" 
+        placeholder="搜索衣物名称..." 
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <text 
+        wx:if="{{searchKeyword}}" 
+        class="search-clear" 
+        bindtap="onClearSearch"
+      >✕</text>
+    </view>
+  </view>
+  
   <scroll-view class="clothes-list" scroll-y>
     <view class="clothes-grid">
       <view 
-        wx:for="{{filteredClothes}}" 
+        wx:for="{{displayClothes}}" 
         wx:key="id"
         class="clothes-card card"
       >
@@ -58,8 +77,8 @@
           </view>
         </view>
         <view class="clothes-actions">
-          <view class="action-btn edit-btn" data-id="{{item.id}}" bindtap="onEdit">
-            <text>✏️ 修改</text>
+          <view class="action-btn wear-btn" data-id="{{item.id}}" bindtap="showWearModal">
+            <text>👕 穿这件</text>
           </view>
           <view class="action-btn delete-btn" data-id="{{item.id}}" bindtap="onDelete">
             <text>🗑️ 删除</text>
@@ -68,10 +87,59 @@
       </view>
     </view>
     
-    <view wx:if="{{filteredClothes.length === 0}}" class="empty-state">
+    <view wx:if="{{displayClothes.length === 0}}" class="empty-state">
       <text class="empty-text">暂无衣物，点击上方"添加衣物"</text>
     </view>
+    
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">
+      <text>加载更多</text>
+    </view>
+    <view wx:if="{{!hasMore && displayClothes.length > 0}}" class="load-more no-more">
+      <text>— 已经到底了 —</text>
+    </view>
   </scroll-view>
+  
+  <!-- 穿这件弹窗 -->
+  <view class="wear-modal {{showWearModal ? 'show' : ''}}" bindtap="hideWearModal">
+    <view class="wear-modal-content" catchtap="stopPropagation">
+      <view class="wear-modal-title">记录穿着</view>
+      
+      <!-- 选择儿童 -->
+      <view class="wear-modal-section">
+        <view class="wear-modal-label">选择儿童</view>
+        <view class="wear-child-list">
+          <view 
+            wx:for="{{children}}"
+            wx:key="id"
+            class="wear-child-item {{wearSelectedChildId === item.id ? 'active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectWearChild"
+          >
+            <view class="wear-child-avatar">{{item.avatar}}</view>
+            <view class="wear-child-name">{{item.name}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 选择日期 -->
+      <view class="wear-modal-section">
+        <view class="wear-modal-label">选择日期</view>
+        <picker mode="date" value="{{wearDate}}" bindchange="onWearDateChange">
+          <view class="wear-date-picker">
+            <text>{{wearDate || '请选择日期'}}</text>
+            <text class="wear-date-arrow">▸</text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 按钮 -->
+      <view class="wear-modal-btns">
+        <view class="wear-btn-cancel" bindtap="hideWearModal">取消</view>
+        <view class="wear-btn-confirm" bindtap="confirmWear">确定</view>
+      </view>
+    </view>
+  </view>
   
   <tab-bar currentIndex="0"></tab-bar>
 </view>
