@@ -9,7 +9,8 @@
     "pages/statistics/statistics",
     "pages/profile/profile",
     "pages/records/records",
-    "pages/child-edit/child-edit"
+    "pages/child-edit/child-edit",
+    "pages/tag-manage/tag-manage"
   ],
   "permission": {
       "scope.userFuzzyLocation": {

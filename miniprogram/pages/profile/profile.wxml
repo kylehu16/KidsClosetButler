@@ -57,6 +57,11 @@
   
   <view class="section">
     <view class="menu-list card">
+      <view class="menu-item" bindtap="goToTagManage">
+        <text class="menu-icon">🏷️</text>
+        <text class="menu-text">标签管理</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="goToSettings">
         <text class="menu-icon">⚙️</text>
         <text class="menu-text">设置</text>

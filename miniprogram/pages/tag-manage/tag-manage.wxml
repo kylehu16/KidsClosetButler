@@ -1,0 +1,69 @@
+<view class="tag-manage-page">
+  <!-- 渐变头部 -->
+  <view class="gradient-header">
+    <view class="header-content">
+      <view class="nav-back" bindtap="goBack">←</view>
+      <view class="header-title">标签管理</view>
+    </view>
+  </view>
+
+  <!-- 预设标签 -->
+  <view class="section">
+    <view class="section-title">预设标签</view>
+    <view class="tag-list">
+      <view wx:for="{{presetTags}}" wx:key="_id" class="tag-item preset-tag">
+        <view class="tag-name">{{item.name}}</view>
+        <view class="tag-type">预设</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义标签 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">自定义标签</view>
+      <view class="add-btn" bindtap="showAddModal">+ 添加</view>
+    </view>
+    
+    <view class="tag-list" wx:if="{{customTags.length > 0}}">
+      <view wx:for="{{customTags}}" wx:key="_id" class="tag-item custom-tag">
+        <view class="tag-info">
+          <view class="tag-name">{{item.name}}</view>
+          <view class="tag-usage">使用次数: {{item.usageCount || 0}}</view>
+        </view>
+        <view class="tag-actions">
+          <view class="action-btn edit" bindtap="showEditModal" data-id="{{item._id}}" data-name="{{item.name}}">编辑</view>
+          <view class="action-btn delete" bindtap="deleteTag" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:else class="empty-tip">暂无自定义标签，点击"添加"创建</view>
+  </view>
+
+  <!-- 添加/编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="hideModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-title">{{modalType === 'add' ? '添加标签' : '编辑标签'}}</view>
+      
+      <view class="modal-form">
+        <view class="form-item">
+          <view class="form-label">标签名称</view>
+          <input 
+            class="form-input" 
+            value="{{tagName}}" 
+            placeholder="请输入标签名称"
+            bindinput="onTagNameInput"
+          />
+        </view>
+      </view>
+      
+      <view class="modal-actions">
+        <view class="btn-cancel" bindtap="hideModal">取消</view>
+        <view class="btn-confirm" bindtap="confirmTag">确定</view>
+      </view>
+    </view>
+  </view>
+
+  <tab-bar currentIndex="3"></tab-bar>
+</view>

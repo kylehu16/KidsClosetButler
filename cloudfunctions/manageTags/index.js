@@ -65,12 +65,71 @@ async function getTags(openId) {
     })
     .get()
   
+  // 计算标签使用次数
+  const allTags = [...presetRes.data, ...customRes.data]
+  const tagIds = allTags.map(tag => tag._id)
+  
+  // 查询衣物中使用这些标签的数量
+  const clothesRes = await db.collection('clothes')
+    .where({
+      tags: db.command.in(tagIds)
+    })
+    .get()
+  
+  // 查询穿搭中使用这些标签的数量
+  const outfitsRes = await db.collection('outfits')
+    .where({
+      tags: db.command.in(tagIds)
+    })
+    .get()
+  
+  // 统计每个标签的使用次数
+  const usageCountMap = {}
+  
+  // 初始化所有标签的使用次数为 0
+  tagIds.forEach(id => {
+    usageCountMap[id] = 0
+  })
+  
+  // 统计衣物中的使用次数（每个衣物算一次使用）
+  clothesRes.data.forEach(clothes => {
+    if (clothes.tags && Array.isArray(clothes.tags)) {
+      clothes.tags.forEach(tagId => {
+        if (usageCountMap[tagId] !== undefined) {
+          usageCountMap[tagId]++
+        }
+      })
+    }
+  })
+  
+  // 统计穿搭中的使用次数（每个穿搭算一次使用）
+  outfitsRes.data.forEach(outfit => {
+    if (outfit.tags && Array.isArray(outfit.tags)) {
+      outfit.tags.forEach(tagId => {
+        if (usageCountMap[tagId] !== undefined) {
+          usageCountMap[tagId]++
+        }
+      })
+    }
+  })
+  
+  // 为标签添加使用次数
+  const presetTags = presetRes.data.map(tag => ({
+    ...tag,
+    usageCount: usageCountMap[tag._id] || 0
+  }))
+  
+  const customTags = customRes.data.map(tag => ({
+    ...tag,
+    usageCount: usageCountMap[tag._id] || 0
+  }))
+  
   return {
     code: 0,
     message: '获取成功',
     data: {
-      preset: presetRes.data,
-      custom: customRes.data
+      preset: presetTags,
+      custom: customTags
     }
   }
 }
@@ -163,7 +222,7 @@ async function updateTag(id, data, openId) {
   }
 }
 
-// 删除标签（软删除）
+// 删除标签（硬删除 + 清理关联）
 async function deleteTag(id, openId) {
   // 检查是否是预设标签
   const result = await db.collection('tags').doc(id).get()
@@ -196,13 +255,36 @@ async function deleteTag(id, openId) {
     }
   }
   
-  // 软删除
-  await db.collection('tags')
-    .doc(id)
-    .update({ 
-      isDeleted: true,
-      updateTime: new Date().toISOString()
+  // 清理衣物中的标签引用
+  const clothesRes = await db.collection('clothes')
+    .where({
+      tags: id  // 查找包含该标签的衣物
     })
+    .get()
+  
+  for (const clothes of clothesRes.data) {
+    const newTags = (clothes.tags || []).filter(tagId => tagId !== id)
+    await db.collection('clothes').doc(clothes._id).update({
+      tags: newTags
+    })
+  }
+  
+  // 清理穿搭中的标签引用
+  const outfitsRes = await db.collection('outfits')
+    .where({
+      tags: id  // 查找包含该标签的穿搭
+    })
+    .get()
+  
+  for (const outfit of outfitsRes.data) {
+    const newTags = (outfit.tags || []).filter(tagId => tagId !== id)
+    await db.collection('outfits').doc(outfit._id).update({
+      tags: newTags
+    })
+  }
+  
+  // 硬删除标签
+  await db.collection('tags').doc(id).remove()
   
   return {
     code: 0,

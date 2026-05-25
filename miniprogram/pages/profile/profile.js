@@ -105,6 +105,10 @@ Page({
     })
   },
 
+  goToTagManage() {
+    wx.navigateTo({ url: '/pages/tag-manage/tag-manage' })
+  },
+
   goToSettings() {
     wx.showToast({ title: '功能开发中', icon: 'none' })
   },
