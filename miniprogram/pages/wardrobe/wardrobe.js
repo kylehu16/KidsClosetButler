@@ -335,5 +335,23 @@ Page({
   // 阻止事件冒泡
   stopPropagation() {
     // 阻止事件冒泡
+  },
+
+  // 分享给朋友
+  onShareAppMessage() {
+    return {
+      title: '儿童衣橱管家 - 智能管理宝贝的每一件衣物',
+      path: '/pages/wardrobe/wardrobe',
+      imageUrl: '' // 可以自定义分享图片，留空则使用小程序默认图标
+    }
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: '儿童衣橱管家 - 智能管理宝贝的每一件衣物',
+      query: '',
+      imageUrl: '' // 可以自定义分享图片，留空则使用小程序默认图标
+    }
   }
 })

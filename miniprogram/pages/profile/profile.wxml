@@ -81,7 +81,7 @@
   </view>
   
   <view class="version-info">
-    <text>V1.0.0</text>
+    <text>{{version}}</text>
   </view>
   
   <tab-bar currentIndex="3"></tab-bar>

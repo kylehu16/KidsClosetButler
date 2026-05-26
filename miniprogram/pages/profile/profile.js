@@ -4,12 +4,14 @@ Page({
   data: {
     children: [],
     userInfo: null,
-    hasUserInfo: false
+    hasUserInfo: false,
+    version: '1.0.0'
   },
   
   onLoad() {
     this.checkUserInfo()
     this.loadChildren()
+    this.getVersion()
   },
   
   onShow() {
@@ -107,6 +109,29 @@ Page({
 
   goToTagManage() {
     wx.navigateTo({ url: '/pages/tag-manage/tag-manage' })
+  },
+
+  // 获取版本号
+  getVersion() {
+    try {
+      const accountInfo = wx.getAccountInfoSync()
+      const version = accountInfo.miniProgram.version || '1.0.0'
+      const envVersion = accountInfo.miniProgram.envVersion
+      
+      // 根据环境添加后缀
+      let versionText = `V${version}`
+      if (envVersion === 'develop') {
+        versionText += ' (开发版)'
+      } else if (envVersion === 'trial') {
+        versionText += ' (体验版)'
+      }
+      
+      this.setData({ version: versionText })
+    } catch (err) {
+      console.error('获取版本号失败:', err)
+      // 使用默认版本号
+      this.setData({ version: 'V1.0.0' })
+    }
   },
 
   goToSettings() {

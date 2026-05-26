@@ -12,6 +12,7 @@
     "pages/child-edit/child-edit",
     "pages/tag-manage/tag-manage"
   ],
+  "version": "1.0.0",
   "permission": {
       "scope.userFuzzyLocation": {
         "desc": "你的位置信息将用于获取当前城市天气信息"
