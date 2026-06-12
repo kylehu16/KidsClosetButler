@@ -19,7 +19,24 @@ Page({
   },
   
   // 检查并获取用户信息
-  checkUserInfo() {
+  async checkUserInfo() {
+    try {
+      // 优先从云端获取用户信息
+      const result = await cloud.user.get()
+      if (result) {
+        const userInfo = {
+          avatarUrl: result.avatarUrl || '',
+          nickName: result.nickName || ''
+        }
+        wx.setStorageSync('userInfo', userInfo)
+        this.setData({ userInfo, hasUserInfo: true })
+        return
+      }
+    } catch (err) {
+      console.log('云端获取用户信息失败，尝试从本地缓存读取', err)
+    }
+    
+    // 云端无数据，从本地缓存读取（兼容旧版本）
     const userInfo = wx.getStorageSync('userInfo')
     if (userInfo) {
       this.setData({ userInfo, hasUserInfo: true })
@@ -40,11 +57,38 @@ Page({
   },
 
   // 选择头像
-  onChooseAvatar(e) {
+  async onChooseAvatar(e) {
     const { avatarUrl } = e.detail
-    const userInfo = this.data.userInfo || {}
-    userInfo.avatarUrl = avatarUrl
-    this.saveUserInfo(userInfo)
+    
+    // 显示加载提示
+    wx.showLoading({ title: '上传中...' })
+    
+    try {
+      // 上传头像到云存储
+      const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.png`
+      const uploadResult = await wx.cloud.uploadFile({
+        cloudPath,
+        filePath: avatarUrl
+      })
+      
+      // 获取云文件 ID
+      const fileID = uploadResult.fileID
+      
+      // 更新用户信息
+      const userInfo = this.data.userInfo || {}
+      userInfo.avatarUrl = fileID
+      this.saveUserInfo(userInfo)
+      
+      wx.hideLoading()
+    } catch (err) {
+      console.error('上传头像失败:', err)
+      wx.hideLoading()
+      
+      // 如果上传失败，仍然使用临时文件路径（兼容处理）
+      const userInfo = this.data.userInfo || {}
+      userInfo.avatarUrl = avatarUrl
+      this.saveUserInfo(userInfo)
+    }
   },
 
   // 输入昵称
@@ -58,10 +102,23 @@ Page({
   },
 
   // 保存用户信息
-  saveUserInfo(userInfo) {
-    userInfo.openid = wx.getStorageSync('openid') || this.data.userInfo?.openid
+  async saveUserInfo(userInfo) {
+    // 保存到本地缓存
     wx.setStorageSync('userInfo', userInfo)
     this.setData({ userInfo, hasUserInfo: true })
+    
+    // 保存到云端
+    try {
+      await cloud.user.update({
+        avatarUrl: userInfo.avatarUrl || '',
+        nickName: userInfo.nickName || ''
+      })
+      console.log('用户信息已保存到云端')
+    } catch (err) {
+      console.error('保存到云端失败:', err)
+      // 云端保存失败不影响本地使用
+    }
+    
     wx.showToast({ title: '保存成功', icon: 'success' })
   },
   

@@ -229,6 +229,21 @@ const aiUsage = {
   }
 }
 
+/**
+ * 用户管理
+ */
+const user = {
+  // 获取用户信息
+  get() {
+    return callFunction('manageUser', { action: 'get' })
+  },
+  
+  // 更新用户信息
+  update(data) {
+    return callFunction('manageUser', { action: 'update', data })
+  }
+}
+
 module.exports = {
   callFunction,
   getPresetData,
@@ -239,5 +254,6 @@ module.exports = {
   wearLogs,
   statistics,
   recommendations,
-  aiUsage  // AI推荐次数限制
+  aiUsage,  // AI推荐次数限制
+  user      // 用户管理
 }
